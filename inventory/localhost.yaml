@@ -25,11 +25,6 @@ all:
   #
   # Ungrouped Hosts - names should be DNS-compatible
   #
-  vars:
-    dns_server: 208.67.222.222      # Cisco Umbrella
-    ntp_server: time.nist.gov
-    domain_name: trust0.net
-
   hosts:
     localhost:
       ansible_connection: local   # deploy playbook to control machine
