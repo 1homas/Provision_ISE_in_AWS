@@ -1,0 +1,29 @@
+---
+
+
+  # - ansible.builtin.debug: var=ise_hostname
+  # - ansible.builtin.debug: var=ise_username
+  # - ansible.builtin.debug: var=ise_password
+  # - ansible.builtin.debug: var=ise_verify
+  # - ansible.builtin.debug: var=ise_debug
+  # - ansible.builtin.debug: var=inventory_hostname
+  # - ansible.builtin.debug: var=hostvars[inventory_hostname].public_ip_address
+  # - ansible.builtin.debug: var=hostvars[inventory_hostname]['tags'].hostname
+
+  - name: ISE Node Deployment Info
+    delegate_to: localhost
+    cisco.ise.node_deployment_info:
+      ise_hostname: "{{ inventory_hostname }}"
+      ise_username: "{{ ise_username }}"
+      ise_password: "{{ ise_password }}"
+      ise_verify:   "{{ ise_verify }}"
+      ise_debug:    "{{ ise_debug }}"
+      # filter: []
+      # filterType: string
+      hostname: "{{ hostvars[inventory_hostname]['tags'].hostname }}"
+    register: result
+
+  - ansible.builtin.debug: var=result
+
+
+...

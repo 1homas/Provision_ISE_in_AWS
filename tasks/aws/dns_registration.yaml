@@ -1,0 +1,36 @@
+---
+
+
+  # - ansible.builtin.debug: var=hostvars[inventory_hostname].public_ip_address
+  # - ansible.builtin.debug: var=hostvars[inventory_hostname]['tags'].hostname
+
+  #
+  # Advertise the same internal IP for public and private DNS
+  #
+  - name: Add public DNS entry for the VM
+    delegate_to: localhost
+    community.aws.route53:
+      state: present
+      zone: "{{ domain_name }}"
+      record: "{{ hostvars[ inventory_hostname ]['tags'].hostname }}.{{ domain_name }}"
+      overwrite: yes
+      private_zone: no
+      type: A
+      ttl: 7200
+      value: "{{ hostvars[ inventory_hostname ].public_ip_address }}"
+      # wait: no
+
+  # - name: Add private DNS entry for the VM
+  #   community.aws.route53:
+  #     state: present
+  #     zone: "{{ domain_name }}"
+  #     record: "{{ item.name }}.{{ domain_name }}"
+  #     overwrite: yes
+  #     private_zone: yes
+  #     type: A
+  #     ttl: 7200
+  #     value: "{{ hostvars[ inventory_hostname ].private_ip_address }}"
+  #     # wait: no
+
+
+...

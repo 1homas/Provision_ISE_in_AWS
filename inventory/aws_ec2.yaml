@@ -1,0 +1,67 @@
+---
+#------------------------------------------------------------------------------
+# To use the `aws_ec2` dynamic inventory plugin, add this entry to the
+# ansible.cfg file's [defaults] section :
+#
+#   [defaults]
+#   inventory=inventory/aws_ec2.yaml
+#
+# ⚠ This file must end with `aws_ec2.yaml|yml`
+#
+# You may verify that it works with the command
+#
+#   `ansible-inventory --graph [-i inventory/aws_ec2.yaml]`
+#
+# For more examples, see
+# https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_ec2_inventory.html
+#------------------------------------------------------------------------------
+
+plugin: amazon.aws.aws_ec2
+
+# 💡 It takes 10X longer to search all regions if you do not list them explicitly!
+regions:
+  - us-west-1
+
+filters:
+  # instance-state-name: ['running']
+  # tag:product: ISE
+
+strict: False
+keyed_groups:
+  - key: tags
+    prefix: tag
+    separator: '_'
+  - key: tags.Name
+    # prefix: name_
+    separator: ''
+  - key: tags.product   # or tags['product']
+    # prefix: product
+    separator: ''
+  - key: tags.project   # or tags['project']
+    # prefix: project
+    separator: ''
+  - key: placement.region
+    # prefix: region
+    separator: ''
+  - key: instance_type
+    # prefix: instance_type
+    separator: ''
+  - key: tags.services
+    # prefix: service
+    separator: ''
+  - key: tags.roles
+    # prefix: role
+    separator: ''
+
+hostnames:
+- ip-address
+- tag:Name
+
+# Set individual variables with compose
+compose:
+  # ansible_host: private_ip_address  # Use private IP address to connect to the host
+  # inventory_hostname: private_ip_address  # Use private IP address to connect to the host
+  ansible_host: public_ip_address  # Use private IP address to connect to the host
+  # ansible_host: name  # Use name to connect to the host
+  # ansible_host: public_dns_name
+...

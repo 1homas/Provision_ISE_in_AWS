@@ -1,0 +1,80 @@
+---
+
+- name: Provision AWS VPC
+  hosts: localhost
+  gather_facts: yes
+  vars_files:
+    - vars/main.yaml
+    # - vars/ise_deployment-thomas-aws.yaml
+    - vars/ise_deployment_standalone.yaml
+    # - vars/ise_deployment_small.yaml
+    # - vars/ise_deployment_medium.yaml
+    # - vars/ise_deployment_large.yaml
+  tasks:
+
+  - name: Timestamp
+    ansible.builtin.include_tasks: tasks/timestamp.yaml
+
+  - name: Provision SSH Keypair
+    ansible.builtin.include_tasks: tasks/aws/ssh_keypair.yaml
+
+  - name: Provision AWS VPC
+    ansible.builtin.include_tasks: tasks/aws/vpc.yaml
+
+  - name: Provision AWS Security Groups
+    ansible.builtin.include_tasks: tasks/aws/security_groups.yaml
+
+  - name: Provision ISE
+    ansible.builtin.include_tasks: tasks/aws/ise.yaml
+
+  - name: Wait 30 seconds for ISE instances to get IP addresses...
+    delegate_to: localhost
+    ansible.builtin.wait_for:
+      timeout: 30
+
+  - name: Refresh AWS Inventory to get the new Instance(s)
+    ansible.builtin.meta: refresh_inventory
+
+
+- name: Initialize ISE
+  hosts: ISE
+  gather_facts: no
+  vars_files:
+    - vars/main.yaml
+  vars:
+    ise_hostname: "{{ inventory_hostname }}"
+    ise_username: "{{ lookup('env','ISE_REST_USERNAME') | default( ise.defaults.rest.username ) }}"
+    ise_password: "{{ lookup('env','ISE_REST_PASSWORD') | default( ise.defaults.rest.password ) }}"
+    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default( ise.defaults.security.verify ) | default(True) }}"
+    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default( ise.defaults.platform.debug )  | default(False) }}"
+  tasks:
+
+  # - name: Press enter to continue
+  #   ansible.builtin.pause:
+
+  - name: DNS Registration for Node(s)
+    ansible.builtin.include_tasks: tasks/aws/dns_registration.yaml
+
+
+  - name: Show SSH Commands for Instance
+    ansible.builtin.debug:
+      msg:
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname]['tags'].hostname }}.{{ domain_name }}"
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname].public_ip_address }}"
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname].private_ip_address }}"
+
+
+  - name: Wait for ISE Application Server
+    ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
+
+  - name: Enable ISE APIs
+    ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
+
+  - name: Show ISE Facts
+    ansible.builtin.include_tasks: tasks/ise/set_facts.yaml
+
+  - name: Show ISE Node Deployment Status
+    ansible.builtin.include_tasks: tasks/ise/node_deployment.yaml
+
+
+...
