@@ -5,7 +5,7 @@
 1. Clone this repository:  
 
     ```sh
-    git clone https://github.com/1homas/Ansible_AWS_ISE.git
+    git clone https://github.com/1homas/Provision_ISE_in_AWS.git
     ```
 
 1. Create your Python environment and install Ansible:  
