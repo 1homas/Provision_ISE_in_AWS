@@ -87,7 +87,7 @@ You may also check availability with:
 ansible-playbook -i inventory wait_for_ise.yaml
 ```
 
-## Deployment
+## Deploy
 
 Depending on the ISE deployment size and desired services, there are many more steps involved in making the provisioned *Standalone* ISE nodes above into an ISE deployment :
 
