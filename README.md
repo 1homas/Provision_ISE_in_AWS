@@ -34,8 +34,8 @@
 
     ```bash
     # ISE REST API Credentials
-    export ISE_REST_USERNAME='admin'
-    export ISE_REST_PASSWORD='ISEisC00L'
+    export ISE_USERNAME='admin'
+    export ISE_PASSWORD='ISEisC00L'
     export ISE_VERIFY=false
     export ISE_DEBUG=false
     ```
