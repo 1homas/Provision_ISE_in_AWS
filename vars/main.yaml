@@ -6,8 +6,6 @@ domain_name: trust0.net   # your domain for DNS, if any
 dns_server: 208.67.222.222      # Cisco Umbrella
 ntp_server: time.nist.gov
 
-ssh:
-
 ssh_keypair_directory: ~/.ssh
 ssh_keypair_name: "{{ project_name }}"
 ssh_keypair_private_key: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}.private.pem"
@@ -35,28 +33,6 @@ ise:
       instance_type: t3.xlarge    # ISE Eval/Demo size
       volume_size: 300            # Gigabytes
       timezone: America/Los_Angeles # see AWS Cloud Formation Template for more
-    security:
-      verify: False
-    ssh:
-      username: admin
-      password: ISEisC00L
-    gui:
-      username: admin
-      password: ISEisC00L
-    rest:
-      username: admin
-      password: ISEisC00L
-    guest:
-      username: guest_api_sponsor
-      password: ISEisC00L
-    radius:
-      secret: ISEisC00L
-      secret_second:
-    snmp:
-      secret: ISEisC00L
-    tacacs:
-      secret: ISEisC00L
-      secret_second:
 
 
 ...
