@@ -40,11 +40,11 @@
     export ISE_DEBUG=false
     ```
 
-    Alternatively, keep your environment variables in `*.sh` files in a `.env` or similar folder in your home directory. Use `source {filename}` to load the environment variables from the files:
+    Alternatively, keep your environment variables in `*.sh` files in a `.secrets` or similar folder in your home directory. Use `source {filename}` to load the environment variables from the files:
 
     ```bash
-    source ~/.env/aws.sh
-    source ~/.env/ise.sh
+    source ~/.secrets/aws.sh
+    source ~/.secrets/ise.sh
     ```
 
 1. Review the settings in `vars/main.yaml` and change them to match your desired cloud environment. :
@@ -112,7 +112,7 @@ You may add your tasks for these to the `deploy.yaml` playbook and run it :
 When you are done, you *should* terminate and remove all instances and associated resources to save money and prevent surprise bills from your cloud provider!
 
 ```sh
-ansible-playbook terminate.yaml
+ansible-playbook destroy.yaml
 ```
 
 ## Resources
