@@ -7,16 +7,25 @@
     - vars/main.yaml
   vars:
     ise_hostname: "{{ inventory_hostname }}"
-    ise_username: "{{ lookup('env','ISE_REST_USERNAME') | default( ise.defaults.rest.username ) }}"
-    ise_password: "{{ lookup('env','ISE_REST_PASSWORD') | default( ise.defaults.rest.password ) }}"
-    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default( ise.defaults.security.verify ) | default(True) }}"
-    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default( ise.defaults.platform.debug )  | default(False) }}"
+    ise_username: "{{ lookup('env','ISE_USERNAME') }}"
+    ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
+    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
+    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default(False, true) }}"
   tasks:
 
-  - name: Show ISE Node Deployment Status
-    ansible.builtin.include_tasks: tasks/ise/node_deployment.yaml
+  - name: Show ISE Environment Setup
+    ansible.builtin.include_tasks: tasks/ise/environment_validation.yaml
 
-  - name: Add your own ...
+  - name: Wait for ISE Application Server
+    ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
+
+  - name: Enable ISE APIs
+    ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
+
+  - name: Get ISE Facts for the Deployment
+    ansible.builtin.include_tasks: tasks/ise/facts.yaml
+
+  - name: Add your own tasks for deploying ISE ...
     ansible.builtin.debug:
       msg: Add your own tasks for deploying ISE ...
 

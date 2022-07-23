@@ -8,8 +8,8 @@
     ansible.builtin.uri:
       url: "https://{{ inventory_hostname }}/admin/API/apiService/update"
       method: POST
-      url_username: "{{ ise.defaults.rest.username }}"
-      url_password: "{{ ise.defaults.rest.password }}"
+      url_username: "{{ ise_username }}"
+      url_password: "{{ ise_password }}"
       force_basic_auth: yes
       body: '{ "papIsEnabled":true, "psnsIsEnabled":true }'
       status_code: 200,500
@@ -39,14 +39,14 @@
     ansible.builtin.uri:
       url: "https://{{ inventory_hostname }}/admin/API/NetworkAccessConfig/ERS"
       method: GET
-      url_username: "{{ ise.defaults.rest.username }}"
-      url_password: "{{ ise.defaults.rest.password }}"
+      url_username: "{{ ise_username }}"
+      url_password: "{{ ise_password }}"
       force_basic_auth: yes
       headers:
         Accept: application/xml
         Content-Type: application/xml
       status_code: 200
-      validate_certs: "{{ ise.defaults.security.verify }}"
+      validate_certs: "{{ ise_verify }}"
       return_content: true
     register: response
 
@@ -61,8 +61,8 @@
     ansible.builtin.uri:
       url: "https://{{ inventory_hostname }}/admin/API/NetworkAccessConfig/ERS"
       method: PUT
-      url_username: "{{ ise.defaults.rest.username }}"
-      url_password: "{{ ise.defaults.rest.password }}"
+      url_username: "{{ ise_username }}"
+      url_password: "{{ ise_password }}"
       force_basic_auth: yes
       headers:
         Accept: application/xml
@@ -70,7 +70,7 @@
       body: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ersConfig>
     <id>1</id><isCSRFCheck>false</isCSRFCheck><isPapEnabled>true</isPapEnabled><isPsnsEnabled>true</isPsnsEnabled></ersConfig>'
       status_code: 200
-      validate_certs: "{{ ise.defaults.security.verify }}"
+      validate_certs: "{{ ise_verify }}"
       return_content: true
     register: response
 

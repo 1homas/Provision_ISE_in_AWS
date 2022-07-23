@@ -43,10 +43,10 @@
     - vars/main.yaml
   vars:
     ise_hostname: "{{ inventory_hostname }}"
-    ise_username: "{{ lookup('env','ISE_REST_USERNAME') | default( ise.defaults.rest.username ) }}"
-    ise_password: "{{ lookup('env','ISE_REST_PASSWORD') | default( ise.defaults.rest.password ) }}"
-    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default( ise.defaults.security.verify ) | default(True) }}"
-    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default( ise.defaults.platform.debug )  | default(False) }}"
+    ise_username: "{{ lookup('env','ISE_USERNAME') | default('', true) }}"
+    ise_password: "{{ lookup('env','ISE_PASSWORD') | default('', true) }}"
+    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
+    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default(False, true) }}"
   tasks:
 
   # - name: Press enter to continue
