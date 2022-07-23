@@ -21,9 +21,9 @@
       # filter: []
       # filterType: string
       hostname: "{{ hostvars[inventory_hostname]['tags'].hostname }}"
-    register: result
+    register: node_info
 
-  - ansible.builtin.debug: var=result
+  - ansible.builtin.debug: var=node_info
 
 
 ...
