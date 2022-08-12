@@ -1,0 +1,220 @@
+---
+#------------------------------------------------------------------------------
+# Sets facts for ISE in an `ise_facts` variable.
+# Example:
+# ise_facts:
+#   ise:
+#     fqdn: ise.securitydemo.net
+#     host: 198.18.133.27
+#     hostname: ise
+#     hotpatches:
+#     - hotpatchName: CSCwa47133_3.1.0.518_patch1
+#       installDate: ' '
+#     ipAddress: 198.18.133.27
+#     is_2x: false
+#     is_3x: true
+#     name: ise
+#     nodeStatus: Connected
+#     patches:
+#     - installDate: Mon Dec 13 21:49:27 2021
+#       patchNumber: 1
+#     roles:
+#     - Standalone
+#     services:
+#     - Session
+#     - Profiler
+#     unpatched: false
+#     version: 3.1.0.518
+#     version_build: '518'
+#     version_major: '3'
+#     version_minor: '1'
+#     version_release: '0'
+#   ise-2:
+#     ...
+#   ise-3:
+#   ...
+#------------------------------------------------------------------------------
+
+  - name: Create ise_facts dictionary
+    when: ise_facts is not defined
+    ansible.builtin.set_fact:
+      ise_facts: {}
+
+  - name: Set {{ inventory_hostname }} hostname to {{ hostvars[inventory_hostname]['tags'].hostname }}
+    when: ise_facts is defined
+    ansible.builtin.set_fact:
+      hostname: "{{ hostvars[inventory_hostname]['tags'].hostname }}"
+
+  - name: Add {{ hostvars[inventory_hostname]['tags'].hostname }} to ise_facts
+    when: ise_facts is defined
+    ansible.builtin.set_fact:
+      ise_facts : "{{ ise_facts | combine( { hostname : {} } ) }}"
+
+  - name: Show ise_facts
+    ansible.builtin.debug: var=ise_facts
+
+
+  - name: Get {{ hostname }} ISE Node Info
+    cisco.ise.node_deployment_info:
+      ise_hostname: "{{ inventory_hostname }}"
+      ise_username: "{{ ise_username }}"
+      ise_password: "{{ ise_password }}"
+      ise_verify:   "{{ ise_verify }}"
+      ise_debug:    "{{ ise_debug }}"
+      hostname: "{{ hostname }}"
+    register: node_info
+
+  # - name: node_info.ise_response
+  #   ansible.builtin.debug: var=node_info.ise_response
+
+
+  - name: Add {{ hostname }} Node Info to ise_facts
+    when: node_info.ise_response is defined
+    ansible.builtin.set_fact:
+      ise_facts : "{{ ise_facts | combine( { hostname : node_info.ise_response } ) }}"
+
+  # - name: ise_facts
+  #   ansible.builtin.debug: var=ise_facts
+
+
+  #----------------------------------------------------------------------------
+  # 🛑 cisco.ise.node_facts is flaky!!
+  #----------------------------------------------------------------------------
+  # fatal: [ise]: FAILED! => changed=false
+  #   msg: |-
+  #     An error occured ... The error was: [500] Internal Server Error
+  #     {
+  #       "message": "An unexpected error occurred",
+  #       "code": 500
+  #     }
+  #      You may want to enable the (ise_debug: True) argument.
+  #----------------------------------------------------------------------------
+  # - name: Get Node Info
+  #   cisco.ise.node_facts:
+  #     ise_hostname: "{{ inventory_hostname }}"
+  #     ise_username: "{{ ise_username }}"
+  #     ise_password: "{{ ise_password }}"
+  #     ise_verify:   "{{ ise_verify   }}"
+  #     ise_debug:    "{{ ise_debug    }}"
+  #   until: node_facts is defined and node_facts.failed == false
+  #   retries: 10
+  #   delay: 5
+  #   register: node_facts
+  # - ansible.builtin.debug: var=node_facts
+
+
+
+
+  #----------------------------------------------------------------------------
+  #
+  # ISE Version and Patch(es)
+  #
+  # 🛑 Do not use the `/ers/config/op/systemconfig/iseversion` API endpoint!
+  #    It is slow, unreliable, and the response format is complicated.
+  #
+  # 💡 Use cisco.ise.patch for ISE Version info
+  #----------------------------------------------------------------------------
+
+  - name: Get {{ hostname }} Patch Info
+    cisco.ise.patch_info:
+      ise_hostname: "{{ inventory_hostname }}"
+      ise_username: "{{ ise_username }}"
+      ise_password: "{{ ise_password }}"
+      ise_verify:   "{{ ise_verify   }}"
+      ise_debug:    "{{ ise_debug    }}"
+    register: patch_info
+
+  # - ansible.builtin.debug: var=patch
+
+  - name: Set ISE Version and Patch
+    when: patch_info is defined
+    ansible.builtin.set_fact:
+      version: "{{ patch_info.ise_response.iseVersion }}"
+      patches: "{{ patch_info.ise_response.patchVersion }}"
+
+
+  #
+  # HotPatch(es)
+  #
+  - name: Get {{ hostname }} Hotpatch Info
+    cisco.ise.hotpatch_info:
+      ise_hostname: "{{ inventory_hostname }}"
+      ise_username: "{{ ise_username }}"
+      ise_password: "{{ ise_password }}"
+      ise_verify:   "{{ ise_verify   }}"
+      ise_debug:    "{{ ise_debug    }}"
+    register: hotpatch_info
+
+
+  - name: Create version_info
+    ansible.builtin.set_fact:
+      version_info:
+        hostname: "{{ hostname }}"
+        inventory_hostname: "{{ inventory_hostname }}"
+
+        version: "{{ version }}"
+        version_major: "{{ version.split('.')[0] }}"
+        version_minor: "{{ version.split('.')[1] }}"
+        version_release: "{{ version.split('.')[2] }}"
+        version_build: "{{ version.split('.')[3] }}"
+
+        is_2x: "{{ version.split('.')[0] | int == 2 }}"
+        is_3x: "{{ version.split('.')[0] | int == 3 }}"
+
+        patches:    "{{ patches }}"
+        hotpatches: "{{ hotpatch_info.ise_response }}"
+        unpatched:  "{{ patches | count == 0 }}"
+
+
+  - name: Show {{ hostname }} version_info
+    ansible.builtin.debug: var=version_info
+
+
+  # ⚠ ansible.utils.update_fact makes a *copy* of the fact!
+  - name: Merge {{ hostname }} version_info into ise_facts
+    ansible.utils.update_fact:
+      updates:
+      - path: "ise_facts.{{ hostname }}"
+        value: "{{ ise_facts[hostname] | combine( version_info ) }}"
+    register: updated
+
+  # Set the actual ise_facts with the 'updated' copy of ise_facts
+  - name: Update ise_facts (update_fact does not change)
+    ansible.builtin.set_fact:
+      ise_facts : "{{ updated.ise_facts }}"
+
+  - name: Show ise_facts
+    ansible.builtin.debug: var=ise_facts
+
+
+  # - name: Get System Certificates
+  #   cisco.ise.system_certificate_info:
+  #     ise_hostname: "{{ inventory_hostname }}"
+  #     ise_username: "{{ ise_username }}"
+  #     ise_password: "{{ ise_password }}"
+  #     ise_verify:   "{{ ise_verify }}"
+  #     ise_debug:    "{{ ise_debug }}"
+  #     hostName: "{{ inventory_hostname }}"
+  #   register: result
+
+
+  # - name: Add {{ inventory_hostname }} System Certificates to ise_facts
+  #   when: result.ise_response is defined
+  #   ansible.utils.update_fact:
+  #     updates:
+  #     - path: ise_facts.{{ inventory_hostname }}.certificates
+  #       value: "{{ result.ise_response }}"
+  #   register: updated
+
+  # # - ansible.builtin.debug: var=updated
+
+  # - name: Update ise_facts
+  #   ansible.builtin.set_fact:
+  #     ise_facts : "{{ updated.ise_facts }}"
+
+  # - name: Show ise_facts
+  #   when: ise_facts is defined
+  #   ansible.builtin.debug: var=ise_facts
+
+
+...
