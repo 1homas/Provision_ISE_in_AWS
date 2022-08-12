@@ -5,12 +5,17 @@
   gather_facts: yes
   vars_files:
     - vars/main.yaml
-    # - vars/ise_deployment-thomas-aws.yaml
     - vars/ise_deployment_standalone.yaml
     # - vars/ise_deployment_small.yaml
     # - vars/ise_deployment_medium.yaml
     # - vars/ise_deployment_large.yaml
   tasks:
+
+  - name: Validate AWS Environment Vars
+    ansible.builtin.include_tasks: tasks/aws/environment_valid.yaml
+
+  - name: Validate ISE Environment Vars
+    ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
 
   - name: Timestamp
     ansible.builtin.include_tasks: tasks/timestamp.yaml
@@ -37,10 +42,9 @@
 
 
 - name: Initialize ISE
-  hosts: ISE
+  hosts: ise
   gather_facts: no
-  vars_files:
-    - vars/main.yaml
+  vars_files: vars/main.yaml
   vars:
     ise_hostname: "{{ inventory_hostname }}"
     ise_username: "{{ lookup('env','ISE_USERNAME') | default('', true) }}"
