@@ -8,7 +8,7 @@ ntp_server: time.nist.gov
 
 ssh_keypair_directory: ~/.ssh
 ssh_keypair_name: "{{ project_name }}"
-ssh_keypair_private_key: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}.private.pem"
+ssh_keypair_private_key: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}"
 
 #
 # AWS VPC
