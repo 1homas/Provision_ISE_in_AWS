@@ -1,0 +1,53 @@
+---
+
+
+  - name: Check aws_region Environment Variables
+    ansible.builtin.assert:
+      that: lookup('env', 'AWS_REGION')
+         or lookup('env', 'EC2_REGION')
+      fail_msg: ❌ Please set environment variables AWS_REGION or EC2_REGION
+      success_msg: ✅
+
+  - name: Check aws_access_key Environment Variables
+    ansible.builtin.assert:
+      that: lookup('env', 'AWS_ACCESS_KEY')
+         or lookup('env', 'AWS_ACCESS_KEY_ID')
+         or lookup('env', 'EC2_ACCESS_KEY')
+      fail_msg: ❌ Please set env variables AWS_ACCESS_KEY or AWS_ACCESS_KEY_ID or EC2_ACCESS_KEY
+      success_msg: ✅
+
+  - name: Check aws_secret_key Environment Variables
+    ansible.builtin.assert:
+      that: lookup('env', 'AWS_SECRET_KEY')
+         or lookup('env', 'AWS_SECRET_ACCESS_KEY')
+         or lookup('env', 'EC2_SECRET_KEY')
+      fail_msg: ❌ Please set env variables AWS_SECRET_KEY or AWS_SECRET_ACCESS_KEY or EC2_SECRET_KEY
+      success_msg: ✅
+
+  - name: Check for minimum package
+    vars:
+      package: "amazon.aws"
+      minimum: "4.0.0"
+      current: "{{ lookup('community.general.collection_version', package) }}"
+    ansible.builtin.assert:
+      that:
+        - lookup('community.general.collection_version', "amazon.aws") is version("4.0.0", '>=')
+      fail_msg: "Update {{package}}: `ansible-galaxy collection install {{package}} --force`"
+      success_msg: ✅  {{package}} {{ lookup('community.general.collection_version', "amazon.aws") }} is current
+
+  - name: Run a basic task to validate functional keys are functional
+    amazon.aws.aws_caller_info:
+    register: caller_info
+  - ansible.builtin.debug: var=caller_info
+
+  # - name: Validate AWS Caller Info
+  #   delegate_to: localhost
+  #   vars:
+  #     # drop: ['changed']
+  #     head: ['user_id', 'account', 'arn', 'account_alias', 'failed',]
+  #     rows: "{{ [ caller_info ] }}"
+  #     temp: "{{ lookup('template', './templates/list_of_dicts.j2') }}"
+  #   ansible.builtin.shell: "echo '{{ temp }}' > /dev/tty"
+
+
+...
