@@ -19,7 +19,7 @@
 plugin: amazon.aws.aws_ec2
 
 # 💡 It takes 10X longer to search all regions if you do not list them explicitly!
-regions:
+regions:        # ⭐ Verify
   - us-west-1
 
 filters:
