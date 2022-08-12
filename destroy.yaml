@@ -7,8 +7,7 @@
 #   - Delete Internet Gateway
 #   - Delete Security Groups in VPC
 #   - Delete VPCs
-#   - Delete public_key
-#   - Delete private.pem
+#   - Delete private key
 #   - TODO: Delete Route53 records
 #   - TODO: Delete S3 Buckets
 #
@@ -201,9 +200,9 @@
   #
   # Delete the local keypair
   #
-  - name: Delete {{ ssh_keypair_directory }}/{{ ssh_keypair_name }}.private.pem
+  - name: Delete {{ ssh_keypair_directory }}/{{ ssh_keypair_name }}
     ansible.builtin.file:
-      path: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}.private.pem"
+      path: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}"
       state: absent
 
 

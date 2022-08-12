@@ -3,7 +3,7 @@
 
   - name: Check for existing keypair
     ansible.builtin.stat:
-      path: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}.private.pem"
+      path: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}"
     register: keypair_stat
 
   # - name: Show keypair_stat
@@ -25,7 +25,7 @@
       when: key_pair.changed
       ansible.builtin.copy:
         content: "{{ key_pair.key.private_key }}"
-        dest: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}.private.pem"
+        dest: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}"
         mode: '0600'
 
 
