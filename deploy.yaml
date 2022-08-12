@@ -14,7 +14,7 @@
   tasks:
 
   - name: Show ISE Environment Setup
-    ansible.builtin.include_tasks: tasks/ise/environment_validation.yaml
+    ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
 
   - name: Wait for ISE Application Server
     ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml

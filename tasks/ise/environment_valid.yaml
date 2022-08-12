@@ -1,0 +1,56 @@
+---
+
+
+  - name: Check ISE Environment Variables
+    loop:
+    - ISE_USERNAME
+    - ISE_PASSWORD
+    - ISE_VERIFY
+    - ISE_DEBUG
+    - ISE_RADIUS_SECRET
+    - ISE_TACACS_SECRET
+    ansible.builtin.assert:
+      that: lookup('env', item)
+      fail_msg: ❌ Please set environment variable {{ item }}
+      success_msg: ✅ {{ item }}
+
+
+  - name: Check ISE Module Variables
+    loop:
+    - ise_hostname
+    - ise_username
+    - ise_password
+    - ise_verify
+    - ise_debug
+    ansible.builtin.assert:
+      that:
+      - item is defined
+      # - "{{ item }}" is undefined
+      # - "{{ item }} is defined"
+      # quiet: true
+      fail_msg: ❌ {{ item }} is not defined
+      success_msg: ✅ {{ item }} is defined
+
+
+  - name: Show ISE Module Variables
+    when: ise_debug is defined and ise_debug
+    loop:
+    - ise_hostname
+    - ise_username
+    - ise_password
+    - ise_verify
+    - ise_debug
+    ansible.builtin.debug:
+      msg: "{{ item }} : {{ lookup('vars', item) }}"
+
+
+  - name: Check for minimum cisco.ise package
+    ansible.builtin.assert:
+      that:
+        - lookup('community.general.collection_version', 'cisco.ise') is version('2.5.0', '>=')
+      fail_msg: "Update cisco.ise: `ansible-galaxy collection install cisco.ise --force`"
+      success_msg: ✅ cisco.ise {{ lookup('community.general.collection_version', 'cisco.ise') }} is current
+
+
+
+...
