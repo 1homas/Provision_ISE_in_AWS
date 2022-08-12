@@ -29,7 +29,7 @@
         roles:    "{{ item.roles | default( 'Standalone') }}"
         services: "{{ item.services  | default( '[]') }}"
         started:  "{{ timestamp.date | default('') }}"
-      user_data:  "hostname={{ item.name | lower }}\nprimarynameserver={{ dns_server }}\ndnsdomain={{ domain_name }}\nntpserver={{ ntp_server }}\ntimezone={{ ise.defaults.platform.timezone | default('Etc/UTC') }}\nusername={{ ise.defaults.ssh.username }}\npassword={{ ise.defaults.ssh.password }}"
+      user_data:  "hostname={{ item.name | lower }}\nprimarynameserver={{ dns_server | default('208.67.222.222') }}\ndnsdomain={{ domain_name | default('demo.local') }}\nntpserver={{ ntp_server | default('time.nist.gov') }}\ntimezone={{ ise.defaults.platform.timezone | default('Etc/UTC') }}\nusername={{ ise.defaults.ssh.username | default('iseadmin') }}\npassword={{ ise.defaults.ssh.password | 'ISEisC00L' }}"
     register: ise_instances
 
 
