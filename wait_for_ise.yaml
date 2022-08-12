@@ -7,12 +7,15 @@
     - vars/main.yaml
   vars:
     ise_hostname: "{{ inventory_hostname }}"
-    ise_username: "{{ lookup('env','ISE_REST_USERNAME') | default('iseadmin', true) }}"
-    ise_password: "{{ lookup('env','ISE_REST_PASSWORD') | default('ISEisC00L!', true) }}"
+    ise_username: "{{ lookup('env','ISE_USERNAME') }}"
+    ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
     ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
     ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default(False, true) }}"
   tasks:
 
+
+  - name: Show ISE Environment Setup
+    ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
 
   - name: Wait for ISE Application Server
     ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
@@ -21,7 +24,7 @@
     ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
 
   - name: Show ISE Facts
-    ansible.builtin.include_tasks: tasks/ise/set_facts.yaml
+    ansible.builtin.include_tasks: tasks/ise/facts.yaml
 
   - name: Show ISE Node Deployment Status
     ansible.builtin.include_tasks: tasks/ise/node_deployment.yaml
