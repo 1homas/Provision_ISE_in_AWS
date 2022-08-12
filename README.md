@@ -1,20 +1,4 @@
 # Provision_ISE_in_AWS Playbook
-
-1. Provision
-    1. Create a single ISE Node which generates a 90-day Evaluation License pack
-    1. Create a repository (S/FTP) for backups and hot/patching
-    1. Apply Hot/Patches
-1. Deploy
-    1. System Certificate(s)
-    1. Trusted Certificates(s)
-    1. Roles
-    1. Services
-1. Configure
-    1. Create repositories, users, identity stores, network devices, policies
-1. Backup
-    1. Initial configuration backup to the repository
-    1. Keep certificates safe
-
 ## Quick Start
 
 1. Clone this repository:  
