@@ -53,15 +53,18 @@ keyed_groups:
     # prefix: role
     separator: ''
 
-hostnames:
-- ip-address
+# Controls the Ansible `inventory_hostname` value
+# Default is the public DNS name (ec2-54-219-203-121.us-west-1.compute.amazonaws.com)
+hostnames:  # Ansible inventory hostname public DNS name by default
 - tag:Name
+# - ip-address
 
 # Set individual variables with compose
 compose:
-  # ansible_host: private_ip_address  # Use private IP address to connect to the host
-  # inventory_hostname: private_ip_address  # Use private IP address to connect to the host
-  ansible_host: public_ip_address  # Use private IP address to connect to the host
-  # ansible_host: name  # Use name to connect to the host
+  ansible_host: public_ip_address
+  # ansible_host: name
   # ansible_host: public_dns_name
+  # ansible_host: private_ip_address
+
+
 ...
