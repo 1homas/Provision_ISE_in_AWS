@@ -32,6 +32,14 @@
   - name: Provision ISE
     ansible.builtin.include_tasks: tasks/aws/ise.yaml
 
+  - name: Summary of ISE Instances
+    delegate_to: localhost
+    vars:
+      head: ['instance_id','instance_type','private_ip_address','public_ip_address']
+      rows: "{{ ise_instances.results | community.general.json_query('[].instances[]') }}"
+      temp: "{{ lookup('template', './templates/list_of_dicts.j2') }}"
+    ansible.builtin.shell: "echo '{{ temp }}' > /dev/tty"
+
   - name: Wait 30 seconds for ISE instances to get IP addresses...
     delegate_to: localhost
     ansible.builtin.wait_for:
@@ -41,12 +49,12 @@
     ansible.builtin.meta: refresh_inventory
 
 
-- name: Initialize ISE
-  hosts: ise
+- name: Initialize ISE Nodes
+  hosts: ISE    # inventory group tag: product: "ISE"
   gather_facts: no
   vars_files: vars/main.yaml
   vars:
-    ise_hostname: "{{ inventory_hostname }}"
+    # ise_hostname: "{{ ansible_host }}"
     ise_username: "{{ lookup('env','ISE_USERNAME') }}"
     ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
     ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
