@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 
 ise_nodes:
-- name: ise-ppan:
+- name: ise-ppan
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.11
@@ -26,7 +26,7 @@ ise_nodes:
   # - SecondaryDedicatedMonitoring
   services: []    # use [] (no services) for dedicated PAN/MNT
 
-- name: ise-span:
+- name: ise-span
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.12
@@ -40,7 +40,7 @@ ise_nodes:
   # - SecondaryDedicatedMonitoring
   services: []    # use [] (no services) for dedicated PAN/MNT
 
-- name: ise-pmnt:
+- name: ise-pmnt
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.13
@@ -54,7 +54,7 @@ ise_nodes:
   # - SecondaryDedicatedMonitoring
   services: []    # use [] (no services) for dedicated PAN/MNT
 
-- name: ise-smnt:
+- name: ise-smnt
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.14
@@ -72,7 +72,7 @@ ise_nodes:
 # PSNs
 #
 
-- name: ise-psn-1:
+- name: ise-psn-1
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.21
@@ -87,7 +87,7 @@ ise_nodes:
   # - SXP
   # - TC-NAC
 
-- name: ise-psn-2:
+- name: ise-psn-2
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.22
@@ -102,7 +102,7 @@ ise_nodes:
   # - SXP
   # - TC-NAC
 
-- name: ise-pxg-1:
+- name: ise-pxg-1
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.23
@@ -117,7 +117,7 @@ ise_nodes:
   # - SXP
   # - TC-NAC
 
-- name: ise-pxg-2:
+- name: ise-pxg-2
   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
   instance_type: t3.xlarge
   private_ip: 172.31.2.24
