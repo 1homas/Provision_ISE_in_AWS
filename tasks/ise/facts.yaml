@@ -40,38 +40,38 @@
     ansible.builtin.set_fact:
       ise_facts: {}
 
-  - name: Set {{ inventory_hostname }} hostname to {{ hostvars[inventory_hostname]['tags'].hostname }}
-    when: ise_facts is defined
-    ansible.builtin.set_fact:
-      hostname: "{{ hostvars[inventory_hostname]['tags'].hostname }}"
+  # - name: Set ise_facts hostname | {{ inventory_hostname }}
+  #   when: ise_facts is defined
+  #   ansible.builtin.set_fact:
+  #     hostname: "{{ inventory_hostname }}"
 
-  - name: Add {{ hostvars[inventory_hostname]['tags'].hostname }} to ise_facts
+  - name: Add {{ inventory_hostname }} to ise_facts
     when: ise_facts is defined
     ansible.builtin.set_fact:
-      ise_facts : "{{ ise_facts | combine( { hostname : {} } ) }}"
+      ise_facts : "{{ ise_facts | combine( { inventory_hostname : {} } ) }}"
 
   - name: Show ise_facts
     ansible.builtin.debug: var=ise_facts
 
 
-  - name: Get {{ hostname }} ISE Node Info
+  - name: Get {{ inventory_hostname }} ISE Node Info
     cisco.ise.node_deployment_info:
       ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
       ise_password: "{{ ise_password }}"
       ise_verify:   "{{ ise_verify }}"
       ise_debug:    "{{ ise_debug }}"
-      hostname: "{{ hostname }}"
+      hostname: "{{ inventory_hostname }}"
     register: node_info
 
   # - name: node_info.ise_response
   #   ansible.builtin.debug: var=node_info.ise_response
 
 
-  - name: Add {{ hostname }} Node Info to ise_facts
+  - name: Add {{ inventory_hostname }} Node Info to ise_facts
     when: node_info.ise_response is defined
     ansible.builtin.set_fact:
-      ise_facts : "{{ ise_facts | combine( { hostname : node_info.ise_response } ) }}"
+      ise_facts : "{{ ise_facts | combine( { inventory_hostname : node_info.ise_response } ) }}"
 
   # - name: ise_facts
   #   ansible.builtin.debug: var=ise_facts
@@ -106,7 +106,6 @@
 
 
   #----------------------------------------------------------------------------
-  #
   # ISE Version and Patch(es)
   #
   # 🛑 Do not use the `/ers/config/op/systemconfig/iseversion` API endpoint!
@@ -115,7 +114,7 @@
   # 💡 Use cisco.ise.patch for ISE Version info
   #----------------------------------------------------------------------------
 
-  - name: Get {{ hostname }} Patch Info
+  - name: Get {{ inventory_hostname }} Patch Info
     cisco.ise.patch_info:
       ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
@@ -136,7 +135,7 @@
   #
   # HotPatch(es)
   #
-  - name: Get {{ hostname }} Hotpatch Info
+  - name: Get {{ inventory_hostname }} Hotpatch Info
     cisco.ise.hotpatch_info:
       ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
@@ -149,7 +148,7 @@
   - name: Create version_info
     ansible.builtin.set_fact:
       version_info:
-        hostname: "{{ hostname }}"
+        hostname: "{{ inventory_hostname }}"
         inventory_hostname: "{{ inventory_hostname }}"
 
         version: "{{ version }}"
@@ -166,16 +165,16 @@
         unpatched:  "{{ patches | count == 0 }}"
 
 
-  - name: Show {{ hostname }} version_info
+  - name: Show {{ inventory_hostname }} version_info
     ansible.builtin.debug: var=version_info
 
 
   # ⚠ ansible.utils.update_fact makes a *copy* of the fact!
-  - name: Merge {{ hostname }} version_info into ise_facts
+  - name: Merge {{ inventory_hostname }} version_info into ise_facts
     ansible.utils.update_fact:
       updates:
-      - path: "ise_facts.{{ hostname }}"
-        value: "{{ ise_facts[hostname] | combine( version_info ) }}"
+      - path: "ise_facts.{{ inventory_hostname }}"
+        value: "{{ ise_facts[inventory_hostname] | combine( version_info ) }}"
     register: updated
 
   # Set the actual ise_facts with the 'updated' copy of ise_facts
