@@ -21,6 +21,10 @@ aws:
     public_subnet_cidr:  172.31.1.0/24
     private_subnet_cidr: 172.31.2.0/24
 
+ise_username: "{{ lookup('env','ISE_USERNAME') }}"
+ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
+ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
+ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default(False, true) }}"
 
 #
 # These are the default ISE instance settings that will be used for instances.

@@ -5,8 +5,8 @@
   gather_facts: yes
   vars_files:
     - vars/main.yaml
-    - vars/ise_deployment_standalone.yaml
-    # - vars/ise_deployment_small.yaml
+    # - vars/ise_deployment_standalone.yaml
+    - vars/ise_deployment_small.yaml
     # - vars/ise_deployment_medium.yaml
     # - vars/ise_deployment_large.yaml
   tasks:
@@ -32,6 +32,11 @@
   - name: Provision ISE
     ansible.builtin.include_tasks: tasks/aws/ise.yaml
 
+  - name: Wait 30 seconds for ISE instances to get IP addresses...
+    delegate_to: localhost
+    ansible.builtin.wait_for:
+      timeout: 30
+
   - name: Summary of ISE Instances
     delegate_to: localhost
     vars:
@@ -39,11 +44,6 @@
       rows: "{{ ise_instances.results | community.general.json_query('[].instances[]') }}"
       temp: "{{ lookup('template', './templates/list_of_dicts.j2') }}"
     ansible.builtin.shell: "echo '{{ temp }}' > /dev/tty"
-
-  - name: Wait 30 seconds for ISE instances to get IP addresses...
-    delegate_to: localhost
-    ansible.builtin.wait_for:
-      timeout: 30
 
   - name: Refresh AWS Inventory to get the new Instance(s)
     ansible.builtin.meta: refresh_inventory
@@ -53,12 +53,6 @@
   hosts: ISE    # inventory group tag: product: "ISE"
   gather_facts: no
   vars_files: vars/main.yaml
-  vars:
-    # ise_hostname: "{{ ansible_host }}"
-    ise_username: "{{ lookup('env','ISE_USERNAME') }}"
-    ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
-    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
-    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default(False, true) }}"
   tasks:
 
   # - name: Press enter to continue
