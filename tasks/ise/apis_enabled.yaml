@@ -3,10 +3,10 @@
 # Tasks to enable and confirm ISE APIs
 #
 
-  - name: Enable ISE OpenAPIs (ISE 3.1+)
+  - name: Enable ISE OpenAPIs (ISE 3.1+) | {{ inventory_hostname }}
     delegate_to: localhost
     ansible.builtin.uri:
-      url: "https://{{ inventory_hostname }}/admin/API/apiService/update"
+      url: "https://{{ ansible_host }}/admin/API/apiService/update"
       method: POST
       url_username: "{{ ise_username }}"
       url_password: "{{ ise_password }}"
@@ -34,10 +34,10 @@
       msg : "❌ {{ inventory_hostname }} OpenAPIs Disabled"
 
 
-  - name: Get ISE ERS APIs Status
+  - name: Get ISE ERS APIs Status | {{ inventory_hostname }}
     delegate_to: localhost
     ansible.builtin.uri:
-      url: "https://{{ inventory_hostname }}/admin/API/NetworkAccessConfig/ERS"
+      url: "https://{{ ansible_host }}/admin/API/NetworkAccessConfig/ERS"
       method: GET
       url_username: "{{ ise_username }}"
       url_password: "{{ ise_password }}"
@@ -56,10 +56,10 @@
       msg : "✅ {{ inventory_hostname }} OpenAPIs Enabled"
 
 
-  - name: Enable {{ inventory_hostname }} ERS APIs
+  - name: Enable ERS APIs | {{ inventory_hostname }}
     delegate_to: localhost
     ansible.builtin.uri:
-      url: "https://{{ inventory_hostname }}/admin/API/NetworkAccessConfig/ERS"
+      url: "https://{{ ansible_host }}/admin/API/NetworkAccessConfig/ERS"
       method: PUT
       url_username: "{{ ise_username }}"
       url_password: "{{ ise_password }}"
@@ -75,13 +75,13 @@
     register: response
 
 
-  - name: Show {{ inventory_hostname }} ERS Enabled Status
+  - name: Show ERS Enabled Status
     when: response.status == 200
     ansible.builtin.debug:
       msg : "✅ {{ inventory_hostname }} ERS APIs Enabled"
 
 
-  - name: Show {{ inventory_hostname }} ERS Disabled Status
+  - name: Show ERS Disabled Status
     when: response.status != 200
     ansible.builtin.debug:
       msg : "❌ {{ inventory_hostname }} ERS APIs Disabled"

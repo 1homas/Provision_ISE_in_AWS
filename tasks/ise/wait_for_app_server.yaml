@@ -1,7 +1,7 @@
 ---
 
 
-  - name: Wait for SSH + HTTP + HTTPS
+  - name: Wait for SSH + HTTP + HTTPS | {{ inventory_hostname }}
     delegate_to: localhost
     loop:
       - 22
@@ -14,7 +14,7 @@
       wait_sleep: 60
       wait_timeout: 1800            # 30 minutes
     ansible.builtin.wait_for:
-      host: "{{ inventory_hostname }}"
+      host: "{{ ansible_host }}"
       port: "{{ port }}"
       state: started                # started == Port is open
       delay:   "{{ wait_delay }}"   # Default: 0. Seconds before first check
@@ -23,10 +23,10 @@
     ignore_errors: yes              # Errors do not stop execution
 
 
-  - name: Wait for ISE Admin GUI
+  - name: Wait for ISE Admin GUI | {{ inventory_hostname }}
     delegate_to: localhost
     ansible.builtin.uri:
-      url: https://{{ inventory_hostname }}/admin/login.jsp
+      url: https://{{ ansible_host }}/admin/login.jsp
       method: GET
       follow_redirects: safe
       timeout: 10

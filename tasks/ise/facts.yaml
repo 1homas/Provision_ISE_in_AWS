@@ -56,7 +56,7 @@
 
   - name: Get {{ hostname }} ISE Node Info
     cisco.ise.node_deployment_info:
-      ise_hostname: "{{ inventory_hostname }}"
+      ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
       ise_password: "{{ ise_password }}"
       ise_verify:   "{{ ise_verify }}"
@@ -91,7 +91,7 @@
   #----------------------------------------------------------------------------
   # - name: Get Node Info
   #   cisco.ise.node_facts:
-  #     ise_hostname: "{{ inventory_hostname }}"
+  #     ise_hostname: "{{ ansible_host }}"
   #     ise_username: "{{ ise_username }}"
   #     ise_password: "{{ ise_password }}"
   #     ise_verify:   "{{ ise_verify   }}"
@@ -117,7 +117,7 @@
 
   - name: Get {{ hostname }} Patch Info
     cisco.ise.patch_info:
-      ise_hostname: "{{ inventory_hostname }}"
+      ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
       ise_password: "{{ ise_password }}"
       ise_verify:   "{{ ise_verify   }}"
@@ -138,7 +138,7 @@
   #
   - name: Get {{ hostname }} Hotpatch Info
     cisco.ise.hotpatch_info:
-      ise_hostname: "{{ inventory_hostname }}"
+      ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
       ise_password: "{{ ise_password }}"
       ise_verify:   "{{ ise_verify   }}"
@@ -189,7 +189,7 @@
 
   # - name: Get System Certificates
   #   cisco.ise.system_certificate_info:
-  #     ise_hostname: "{{ inventory_hostname }}"
+  #     ise_hostname: "{{ ansible_host }}"
   #     ise_username: "{{ ise_username }}"
   #     ise_password: "{{ ise_password }}"
   #     ise_verify:   "{{ ise_verify }}"

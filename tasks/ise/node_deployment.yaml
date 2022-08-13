@@ -13,7 +13,7 @@
   - name: ISE Node Deployment Info
     delegate_to: localhost
     cisco.ise.node_deployment_info:
-      ise_hostname: "{{ inventory_hostname }}"
+      ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
       ise_password: "{{ ise_password }}"
       ise_verify:   "{{ ise_verify }}"

@@ -6,7 +6,7 @@
   vars_files:
     - vars/main.yaml
   vars:
-    ise_hostname: "{{ inventory_hostname }}"
+    ise_hostname: "{{ ansible_host }}"
     ise_username: "{{ lookup('env','ISE_USERNAME') }}"
     ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
     ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
