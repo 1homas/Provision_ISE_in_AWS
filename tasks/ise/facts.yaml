@@ -7,114 +7,96 @@
 #     fqdn: ise.securitydemo.net
 #     host: 198.18.133.27
 #     hostname: ise
-#     hotpatches:
-#     - hotpatchName: CSCwa47133_3.1.0.518_patch1
-#       installDate: ' '
-#     ipAddress: 198.18.133.27
-#     is_2x: false
-#     is_3x: true
-#     name: ise
-#     nodeStatus: Connected
-#     patches:
-#     - installDate: Mon Dec 13 21:49:27 2021
-#       patchNumber: 1
-#     roles:
-#     - Standalone
-#     services:
-#     - Session
-#     - Profiler
-#     unpatched: false
-#     version: 3.1.0.518
-#     version_build: '518'
-#     version_major: '3'
-#     version_minor: '1'
-#     version_release: '0'
+#     ...
 #   ise-2:
 #     ...
 #   ise-3:
 #   ...
 #------------------------------------------------------------------------------
 
-  - name: Create ise_facts dictionary
-    when: ise_facts is not defined
+  # Combine() all dictionary attributes into `ise_facts`
+  # then add to `ise_facts` at the end
+  - name: Create ise_facts Dictionary
     ansible.builtin.set_fact:
       ise_facts: {}
 
-  # - name: Set ise_facts hostname | {{ inventory_hostname }}
-  #   when: ise_facts is defined
-  #   ansible.builtin.set_fact:
-  #     hostname: "{{ inventory_hostname }}"
+  - name: Get Node Info
+    cisco.ise.node_info:
+      ise_hostname: "{{ ansible_host }}"
+      ise_username: "{{ ise_username }}"
+      ise_password: "{{ ise_password }}"
+      ise_verify:   "{{ ise_verify   }}"
+      ise_debug:    "{{ ise_debug    }}"
+      name: "{{ inventory_hostname }}"
+    register: node_info
+  # - ansible.builtin.debug: var=node_info
+  #
+  # node_info:
+  #   changed: false
+  #   failed: false
+  #   ise_response:
+  #     displayName: ise
+  #     fqdn: ise.securitydemo.net
+  #     gateWay: 198.18.128.1
+  #     id: a91a15f0-78a8-11eb-b987-005056aba98b
+  #     inDeployment: false
+  #     ipAddress: 198.18.133.27
+  #     ipAddresses:
+  #     - 198.18.133.27
+  #     ipV6Addresses: []
+  #     link:
+  #       href: https://198.18.133.27/ers/config/node/name/ise
+  #       rel: self
+  #       type: application/json
+  #     name: ise
+  #     nodeServiceTypes: SESSION,PROFILER
+  #     otherPapFqdn: ''
+  #     papNode: true
+  #     primaryPapNode: false
+  #     pxGridNode: false
+  #     sxpIpAddress: ''
+  #   result: ''
+  #
 
-  - name: Add {{ inventory_hostname }} to ise_facts
-    when: ise_facts is defined
-    ansible.builtin.set_fact:
-      ise_facts : "{{ ise_facts | combine( { inventory_hostname : {} } ) }}"
 
-  - name: Show ise_facts
-    ansible.builtin.debug: var=ise_facts
-
-
-  - name: Get {{ inventory_hostname }} ISE Node Info
+  - name: Get Node Deployment Info
     cisco.ise.node_deployment_info:
       ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
       ise_password: "{{ ise_password }}"
-      ise_verify:   "{{ ise_verify }}"
-      ise_debug:    "{{ ise_debug }}"
+      ise_verify:   "{{ ise_verify   }}"
+      ise_debug:    "{{ ise_debug    }}"
       hostname: "{{ inventory_hostname }}"
-    register: node_info
-
-  # - name: node_info.ise_response
-  #   ansible.builtin.debug: var=node_info.ise_response
-
-
-  - name: Add {{ inventory_hostname }} Node Info to ise_facts
-    when: node_info.ise_response is defined
-    ansible.builtin.set_fact:
-      ise_facts : "{{ ise_facts | combine( { inventory_hostname : node_info.ise_response } ) }}"
-
-  # - name: ise_facts
-  #   ansible.builtin.debug: var=ise_facts
-
-
-  #----------------------------------------------------------------------------
-  # 🛑 cisco.ise.node_facts is flaky!!
-  #----------------------------------------------------------------------------
-  # fatal: [ise]: FAILED! => changed=false
-  #   msg: |-
-  #     An error occured ... The error was: [500] Internal Server Error
-  #     {
-  #       "message": "An unexpected error occurred",
-  #       "code": 500
-  #     }
-  #      You may want to enable the (ise_debug: True) argument.
-  #----------------------------------------------------------------------------
-  # - name: Get Node Info
-  #   cisco.ise.node_facts:
-  #     ise_hostname: "{{ ansible_host }}"
-  #     ise_username: "{{ ise_username }}"
-  #     ise_password: "{{ ise_password }}"
-  #     ise_verify:   "{{ ise_verify   }}"
-  #     ise_debug:    "{{ ise_debug    }}"
-  #   until: node_facts is defined and node_facts.failed == false
-  #   retries: 10
-  #   delay: 5
-  #   register: node_facts
-  # - ansible.builtin.debug: var=node_facts
-
-
+    register: node_deployment_info
+  # - ansible.builtin.debug: var=node_deployment_info
+  #
+  # node_deployment_info:
+  #   changed: false
+  #   failed: false
+  #   ise_response:
+  #     fqdn: ise.securitydemo.net
+  #     hostname: ise
+  #     ipAddress: 198.18.133.27
+  #     nodeStatus: Connected
+  #     roles:
+  #     - Standalone
+  #     services:
+  #     - Session
+  #     - Profiler
+  #   result: ''
+  #
 
 
   #----------------------------------------------------------------------------
   # ISE Version and Patch(es)
-  #
-  # 🛑 Do not use the `/ers/config/op/systemconfig/iseversion` API endpoint!
-  #    It is slow, unreliable, and the response format is complicated.
-  #
-  # 💡 Use cisco.ise.patch for ISE Version info
+  #----------------------------------------------------------------------------
+  # 🛑 cisco.ise.node_facts is flaky with random [500] Internal Server Errors
+  # 🛑 The `/ers/config/op/systemconfig/iseversion` API endpoint is slow,
+  #    unreliable, and the response format is complicated.
+  # 💡 Use cisco.ise.patch_info for ISE Version info with ISE 3.1P1+
   #----------------------------------------------------------------------------
 
-  - name: Get {{ inventory_hostname }} Patch Info
+  - name: Get Patch Info
     cisco.ise.patch_info:
       ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
@@ -122,20 +104,25 @@
       ise_verify:   "{{ ise_verify   }}"
       ise_debug:    "{{ ise_debug    }}"
     register: patch_info
+  # - ansible.builtin.debug: var=patch_info
+  #
+  # patch_info:
+  #   changed: false
+  #   failed: false
+  #   ise_response:
+  #     iseVersion: 3.1.0.518
+  #     patchVersion:
+  #     - installDate: Mon Dec 13 21:49:27 2021
+  #       patchNumber: 1
+  #   result: ''
+  #
 
-  # - ansible.builtin.debug: var=patch
-
-  - name: Set ISE Version and Patch
+  - name: Set ISE Version
     when: patch_info is defined
     ansible.builtin.set_fact:
       version: "{{ patch_info.ise_response.iseVersion }}"
-      patches: "{{ patch_info.ise_response.patchVersion }}"
 
-
-  #
-  # HotPatch(es)
-  #
-  - name: Get {{ inventory_hostname }} Hotpatch Info
+  - name: Get Hotpatch Info
     cisco.ise.hotpatch_info:
       ise_hostname: "{{ ansible_host }}"
       ise_username: "{{ ise_username }}"
@@ -143,77 +130,51 @@
       ise_verify:   "{{ ise_verify   }}"
       ise_debug:    "{{ ise_debug    }}"
     register: hotpatch_info
+  # - ansible.builtin.debug: var=hotpatch_info
+  #
+  # hotpatch_info:
+  #   changed: false
+  #   failed: false
+  #   ise_response:
+  #   - hotpatchName: CSCwa47133_3.1.0.518_patch1
+  #     installDate: ' '
+  #   result: ''
+  #
 
-
-  - name: Create version_info
+  - name: Create Additional Attributes
     ansible.builtin.set_fact:
-      version_info:
-        hostname: "{{ inventory_hostname }}"
-        inventory_hostname: "{{ inventory_hostname }}"
-
+      attributes:
+        ip_address: "{{ node_info.ise_response.ipAddress }}"
         version: "{{ version }}"
         version_major: "{{ version.split('.')[0] }}"
         version_minor: "{{ version.split('.')[1] }}"
         version_release: "{{ version.split('.')[2] }}"
         version_build: "{{ version.split('.')[3] }}"
-
         is_2x: "{{ version.split('.')[0] | int == 2 }}"
         is_3x: "{{ version.split('.')[0] | int == 3 }}"
+        unpatched:  "{{ patch_info.ise_response.patchVersion | count == 0 }}"
 
-        patches:    "{{ patches }}"
-        hotpatches: "{{ hotpatch_info.ise_response }}"
-        unpatched:  "{{ patches | count == 0 }}"
-
-
-  - name: Show {{ inventory_hostname }} version_info
-    ansible.builtin.debug: var=version_info
-
-
-  # ⚠ ansible.utils.update_fact makes a *copy* of the fact!
-  - name: Merge {{ inventory_hostname }} version_info into ise_facts
-    ansible.utils.update_fact:
-      updates:
-      - path: "ise_facts.{{ inventory_hostname }}"
-        value: "{{ ise_facts[inventory_hostname] | combine( version_info ) }}"
-    register: updated
-
-  # Set the actual ise_facts with the 'updated' copy of ise_facts
-  - name: Update ise_facts (update_fact does not change)
+  - name: Combine Multiple Dictionaries into `ise_facts`
     ansible.builtin.set_fact:
-      ise_facts : "{{ updated.ise_facts }}"
+      ise_facts : "{{ ise_facts
+        | combine( node_info.ise_response )
+        | combine( node_deployment_info.ise_response )
+        | combine( { 'version'    : patch_info.ise_response.iseVersion } )
+        | combine( { 'patches'    : patch_info.ise_response.patchVersion } )
+        | combine( { 'hotpatches' : hotpatch_info.ise_response } )
+        | combine( attributes )
+        }}"
 
-  - name: Show ise_facts
-    ansible.builtin.debug: var=ise_facts
+  - name: Remove `link` from ise_facts
+    ansible.builtin.set_fact:
+      ise_facts: "{{ ise_facts | dict2items | rejectattr('key', 'eq', 'link') | list | items2dict }}"
 
-
-  # - name: Get System Certificates
-  #   cisco.ise.system_certificate_info:
-  #     ise_hostname: "{{ ansible_host }}"
-  #     ise_username: "{{ ise_username }}"
-  #     ise_password: "{{ ise_password }}"
-  #     ise_verify:   "{{ ise_verify }}"
-  #     ise_debug:    "{{ ise_debug }}"
-  #     hostName: "{{ inventory_hostname }}"
-  #   register: result
-
-
-  # - name: Add {{ inventory_hostname }} System Certificates to ise_facts
-  #   when: result.ise_response is defined
-  #   ansible.utils.update_fact:
-  #     updates:
-  #     - path: ise_facts.{{ inventory_hostname }}.certificates
-  #       value: "{{ result.ise_response }}"
-  #   register: updated
-
-  # # - ansible.builtin.debug: var=updated
-
-  # - name: Update ise_facts
+  # - name: Add {{ inventory_hostname }} to ise_facts
   #   ansible.builtin.set_fact:
-  #     ise_facts : "{{ updated.ise_facts }}"
+  #     # ise_facts : "{{ ise_facts | default({}) | combine( { inventory_hostname : ise_facts } ) }}"
+  #     ise_facts : "{{ ise_facts | default({}) | combine( { inventory_hostname : ise_facts } ) }}"
 
-  # - name: Show ise_facts
-  #   when: ise_facts is defined
-  #   ansible.builtin.debug: var=ise_facts
+  # - ansible.builtin.debug: var=ise_facts
 
 
 ...
