@@ -1,21 +1,27 @@
 {##############################################################################
   Template a table from a list of dicts with auto-sized columns.
   Uses all of the columns by default if not specified by `head[]`
+  Required Variables:
+  - rows[] : a list of dicts
+  Optional Variables:
+  - head[] : the list of columns by name (headers) to show from the rows.
+  - hide[] : the list of columns to hide by name
+  - maxw : the maximum width (int) of all columns or they are truncated with '…'
 ##############################################################################}
 {% if head is undefined %}
 {%   set head = rows[0] | dict2items | json_query('[].key') %}
 {% endif %}
 {# 
-  Remove any columns in the `drop` list
+  Remove any columns in the `hide` list
   Use _ notation to increase scope beyond if and for blocks!
 #}
-{% if drop is defined %}
-{%   for col in drop %}
+{% if hide is defined %}
+{%   for col in hide %}
 {%     set _ = head.remove(col) %}
 {%   endfor %}
 {% endif %}
 {# 
-  Calculate the maximum width of each column 
+  head_widths[]: the maximum width of each column 
   - include (union) the header name in case it is longer than the values
   - convert to string because booleans have no length
 #}
