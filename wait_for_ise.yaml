@@ -1,16 +1,10 @@
 ---
 
 - name: Wait for ISE
-  hosts: ISE
+  hosts: ise
   gather_facts: no
   vars_files:
     - vars/main.yaml
-  vars:
-    ise_hostname: "{{ ansible_host }}"
-    ise_username: "{{ lookup('env','ISE_USERNAME') }}"
-    ise_password: "{{ lookup('env','ISE_PASSWORD') }}"
-    ise_verify:   "{{ lookup('env','ISE_VERIFY') | default(False, true) }}"
-    ise_debug:    "{{ lookup('env','ISE_DEBUG')  | default(False, true) }}"
   tasks:
 
 
