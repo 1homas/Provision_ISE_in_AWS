@@ -60,7 +60,8 @@ ise_nodes:
   public_dns_name:  "ise-psn.{{ domain_name }}"
   # private_dns_name: "ise-span.{{ domain_name }}"
   private_ip: 172.31.2.13
-  roles: []    # use [] (no roles) for dedicated PSN
+  roles:
+  # [] (no roles) for dedicated PSN
   # - Standalone
   # - PrimaryAdmin
   # - PrimaryMonitoring
