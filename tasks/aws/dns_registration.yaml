@@ -16,7 +16,7 @@
       overwrite: yes
       private_zone: no
       type: A
-      ttl: 7200
+      ttl: 600
       value: "{{ hostvars[ inventory_hostname ].public_ip_address }}"
       # wait: no
 
