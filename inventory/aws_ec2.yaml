@@ -58,16 +58,16 @@ keyed_groups:
   separator: ''
 - key: tags.product   # or tags['product']
   prefix: product
-  separator: ''
+  separator: '_'
 - key: tags.project   # or tags['project']
   prefix: project
-  separator: ''
+  separator: '_'
 - key: tags.services
   prefix: service
-  separator: ''
+  separator: '_'
 - key: tags.roles
   prefix: role
-  separator: ''
+  separator: '_'
 - key: placement.availability_zone
   prefix: az
   separator: '_'
@@ -93,7 +93,7 @@ hostnames:
 # Set individual variables with compose
 compose:
   ansible_host: public_ip_address  # Use private IP address to connect to the host
-  ansible_host: private_ip_address  # Use private IP address to connect to the host
+  # ansible_host: private_ip_address  # Use private IP address to connect to the host
   # inventory_hostname: private_ip_address  # Use private IP address to connect to the host
   # ansible_host: name  # Use name to connect to the host
   # ansible_host: public_dns_name
