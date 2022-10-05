@@ -5,8 +5,8 @@
   gather_facts: yes
   vars_files:
     - vars/main.yaml
-    # - vars/ise_deployment_standalone.yaml
-    - vars/ise_deployment_small.yaml
+    - vars/ise_deployment_standalone.yaml
+    # - vars/ise_deployment_small.yaml
     # - vars/ise_deployment_medium.yaml
     # - vars/ise_deployment_large.yaml
   tasks:
@@ -16,9 +16,6 @@
 
   - name: Validate ISE Environment Vars
     ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
-
-  - name: Timestamp
-    ansible.builtin.include_tasks: tasks/timestamp.yaml
 
   - name: Provision SSH Keypair
     ansible.builtin.include_tasks: tasks/aws/ssh_keypair.yaml
@@ -31,11 +28,6 @@
 
   - name: Provision ISE
     ansible.builtin.include_tasks: tasks/aws/ise.yaml
-
-  - name: Wait 30 seconds for ISE instances to get IP addresses...
-    delegate_to: localhost
-    ansible.builtin.wait_for:
-      timeout: 30
 
   - name: Summary of ISE Instances
     delegate_to: localhost
@@ -50,9 +42,14 @@
 
 
 - name: Initialize ISE Nodes
-  hosts: ISE    # inventory group tag: product: "ISE"
+  hosts: ise
   gather_facts: no
   vars_files: vars/main.yaml
+  vars:
+    ansible_connection: ansible.netcommon.network_cli
+    ansible_network_os: cisco.ios.ios
+    ansible_ssh_user: iseadmin
+    ansible_ssh_private_key_file: "{{ ssh_keypair_private_key }}"
   tasks:
 
   # - name: Press enter to continue
@@ -61,14 +58,12 @@
   - name: DNS Registration for Node(s)
     ansible.builtin.include_tasks: tasks/aws/dns_registration.yaml
 
-
   - name: Show SSH Commands for Instance
     ansible.builtin.debug:
       msg:
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname]['tags'].hostname }}.{{ domain_name }}"
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ inventory_hostname }}.{{ domain_name }}"
       - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname].public_ip_address }}"
       - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname].private_ip_address }}"
-
 
   - name: Wait for ISE Application Server
     ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
@@ -76,11 +71,15 @@
   - name: Enable ISE APIs
     ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
 
-  - name: Show ISE Facts
+  - name: Get ISE Facts
     ansible.builtin.include_tasks: tasks/ise/facts.yaml
 
-  - name: Show ISE Node Deployment Status
-    ansible.builtin.include_tasks: tasks/ise/node_deployment.yaml
+  - name: ISE Facts
+    ansible.builtin.debug: var=ise_facts
+
+  - name: Assert Standalone ISE Nodes
+    ansible.builtin.assert:
+      that: "'Standalone' in ise_facts.roles"
 
 
 ...
