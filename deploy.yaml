@@ -1,32 +1,216 @@
 ---
 
 - name: Deploy ISE Nodes
-  hosts: ISE
+  hosts: ise_nodes
   gather_facts: no
-  vars_files: vars/main.yaml
+  vars_files:
+    - vars/main.yaml
+    - vars/ise_deployment_small.yaml
+    # - vars/ise_deployment_standalone.yaml
   tasks:
 
-  - name: Show ISE Environment Setup
-    ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
+  # - name: Show ISE Environment Setup
+  #   ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
 
-  - name: Wait for ISE Application Server
-    ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
+  # - name: Wait for ISE Application Server
+  #   ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
 
-  - name: Enable ISE APIs
-    ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
+  # - name: Enable ISE APIs
+  #   ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
 
-  - ansible.builtin.debug: var=ISE
-
-  - name: Get ISE Facts for the Deployment
-    # loop: "{{ ISE }}"
+  - name: Get ISE Facts
     ansible.builtin.include_tasks: tasks/ise/facts.yaml
 
-  # - name: Show ISE Node Deployment Status
-  #   ansible.builtin.include_tasks: tasks/ise/node_deployment.yaml
+  - name: Show ise_facts
+    ansible.builtin.debug: var=ise_facts
 
-  - name: Add your own tasks for deploying ISE ...
-    ansible.builtin.debug:
-      msg: Add your own tasks for deploying ISE ...
+  # current roles & services
+  - ansible.builtin.debug: var=ise_facts.roles
+  - ansible.builtin.debug: var=ise_facts.services
+
+  - name: AWS EC2 instance info from tag:Name
+    delegate_to: localhost
+    amazon.aws.ec2_instance_info:
+      filters:
+        "tag:Name": "{{ inventory_hostname }}"
+    register: instance_info
+  # - ansible.builtin.debug: var=instance_info
+
+
+  # - name: ✔ Standalone ISE Nodes
+  #   ansible.builtin.assert:
+  #     that:
+  #     - "'Standalone' in instance_info.instances[0].tags.roles"
+
+  # - name: ✔ Standalone ISE Nodes
+  #   when: "'Standalone' in instance_info.instances[0].tags.roles"
+  #   ansible.builtin.debug: msg="{{ inventory_hostname }} is Standalone"
+
+
+  # - name: ✔ Apply ISE Patch to Node
+  #   # when:
+  #   ansible.builtin.debug:
+  #     msg: ✔ Apply ISE Patch to Node
+
+  # - name: ✔ Apply ISE HotPatch to Node
+  #   # when:
+  #   ansible.builtin.debug:
+  #     msg: ✔ Apply ISE HotPatch to Node
+
+  # - name: ✔ Show Certs
+  #   ansible.builtin.debug:
+  #     msg: Show certs...
+
+  # - name: ✔ Install System Certificate
+  #   ansible.builtin.debug:
+  #     msg: Load Certs ...
+
+  # - name: ✔ Install Trusted Certificate
+  #   ansible.builtin.debug:
+  #     msg: Load Certs ...
+
+
+  - name: ISE Node Deployment
+    ansible.builtin.include_tasks: tasks/ise/node_deployment.yaml
+
+  #----------------------------------------------------------------------------
+  # roles:
+  #   - []  # [] == PSN
+  #   - Standalone
+  #   - PrimaryAdmin
+  #   - PrimaryMonitoring
+  #   - SecondaryAdmin
+  #   - SecondaryMonitoring
+  #   - PrimaryDedicatedMonitoring
+  #   - SecondaryDedicatedMonitoring
+  #----------------------------------------------------------------------------
+
+
+  # - name: ✔ Show Certs
+  #   ansible.builtin.debug:
+  #     msg: Show certs...
+
+  # - name: ✔ Load Certs
+  #   ansible.builtin.debug:
+  #     msg: Load Certs ...
+
+  # - name: ✔ Set Primary PAN
+  #   # when:
+  #   ansible.builtin.debug:
+  #     msg: ✔ Set Primary PAN ...
+
+  # - name: ✔ Patch Node
+  #   # when:
+  #   ansible.builtin.debug:
+  #     msg: ✔ Patch Node ...
+
+
+  - name: ✔ Roles
+    ansible.builtin.debug: var=instance_info.instances[0].tags.roles
+
+  #   - [] # PSN
+  - name: ✔ Set PSN
+    when: instance_info.instances[0].tags.roles | length == 0
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is PSN"
+
+  #   - Standalone
+  - name: ✔ Set Standalone
+    when: "'Standalone' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is Standalone"
+
+  #   - PrimaryAdmin
+  - name: ✔ Set PrimaryAdmin
+    when: "'PrimaryAdmin' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is PrimaryAdmin"
+
+  # - name: ✔ Set PrimaryAdmin
+  #   cisco.ise.node_standalone_to_primary:
+  #     ise_hostname: "{{ise_hostname}}"
+  #     ise_username: "{{ise_username}}"
+  #     ise_password: "{{ise_password}}"
+  #     ise_verify: "{{ise_verify}}"
+
+  #   - SecondaryAdmin
+  - name: ✔ Set SecondaryAdmin
+    when: "'SecondaryAdmin' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is SecondaryAdmin"
+
+  #   - PrimaryMonitoring
+  - name: ✔ Set PrimaryMonitoring
+    when: "'PrimaryMonitoring' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is PrimaryMonitoring"
+
+  #   - SecondaryMonitoring
+  - name: ✔ Set SecondaryMonitoring
+    when: "'SecondaryMonitoring' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is SecondaryMonitoring"
+
+  #   - PrimaryDedicatedMonitoring
+  - name: ✔ Set PrimaryDedicatedMonitoring
+    when: "'PrimaryDedicatedMonitoring' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is PrimaryDedicatedMonitoring"
+
+  #   - SecondaryDedicatedMonitoring
+  - name: ✔ Set SecondaryDedicatedMonitoring
+    when: "'SecondaryDedicatedMonitoring' in instance_info.instances[0].tags.roles"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is SecondaryDedicatedMonitoring"
+
+  #----------------------------------------------------------------------------
+  # services:
+  #   - DeviceAdmin
+  #   - Profiler
+  #   - Session
+  #   - pxGrid
+  #   - pxGridCloud
+  #   - PassiveIdentity
+  #   - SXP
+  #   - TC-NAC
+  #----------------------------------------------------------------------------
+
+  - name: ✔ Services
+    ansible.builtin.debug: var=instance_info.instances[0].tags.services
+
+  #   - DeviceAdmin
+  - name: ✔ Set Service DeviceAdmin
+    when: "'DeviceAdmin' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is DeviceAdmin"
+
+  #   - Profiler
+  - name: ✔ Set Service Profiler
+    when: "'Profiler' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is Profiler"
+
+  #   - Session
+  - name: ✔ Set Service Session
+    when: "'Session' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is Session"
+
+  #   - pxGrid
+  - name: ✔ Set Service pxGrid
+    when: "'pxGrid' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is pxGrid"
+
+  #   - pxGridCloud
+  - name: ✔ Set Service pxGridCloud
+    when: "'pxGridCloud' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is pxGridCloud"
+
+  #   - PassiveIdentity
+  - name: ✔ Set Service PassiveIdentity
+    when: "'PassiveIdentity' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is PassiveIdentity"
+
+  #   - SXP
+  - name: ✔ Set Service SXP
+    when: "'SXP' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is SXP"
+
+  #   - TC-NAC
+  - name: ✔ Set Service TC-NAC
+    when: "'TC-NAC' in instance_info.instances[0].tags.services"
+    ansible.builtin.debug: msg="{{ inventory_hostname }} is TC-NAC"
+
+
 
 
 ...
