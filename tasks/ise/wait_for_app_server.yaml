@@ -1,29 +1,63 @@
 ---
 
 
-  - name: Wait for SSH + HTTP + HTTPS | {{ inventory_hostname }}
+  # - name: Wait for SSH + HTTP + HTTPS
+  #   delegate_to: localhost
+  #   loop:
+  #     - 22
+  #     - 80
+  #     - 443
+  #   loop_control:
+  #     loop_var: port
+  #   vars:
+  #     wait_delay: 0
+  #     wait_sleep: 10
+  #     wait_timeout: 1800            # 30 minutes
+  #   ansible.builtin.wait_for:
+  #     host: "{{ ansible_host }}"
+  #     port: "{{ port }}"
+  #     state: started                # started == Port is open
+  #     delay:   "{{ wait_delay }}"   # Default: 0. Seconds before first check
+  #     sleep:   "{{ wait_sleep }}"   # Default: 1. Seconds between checks
+  #     timeout: "{{ wait_timeout }}" # Default: 300. Stop checking after <seconds>
+  #   ignore_errors: yes              # Errors do not stop execution
+
+
+  - name: Wait for SSH
     delegate_to: localhost
-    loop:
-      - 22
-      - 80
-      - 443
-    loop_control:
-      loop_var: port
-    vars:
-      wait_delay: 0
-      wait_sleep: 60
-      wait_timeout: 1500            # 25 minutes
     ansible.builtin.wait_for:
       host: "{{ ansible_host }}"
-      port: "{{ port }}"
+      port: 22
       state: started                # started == Port is open
-      delay:   "{{ wait_delay }}"   # Default: 0. Seconds before first check
-      sleep:   "{{ wait_sleep }}"   # Default: 1. Seconds between checks
-      timeout: "{{ wait_timeout }}" # Default: 300. Stop checking after <seconds>
+      delay:   0                    # Default: 0. Seconds before first check
+      sleep:   10                   # Default: 1. Seconds between checks
+      timeout: 1800                 # Default: 300. Stop checking after <seconds>
+    ignore_errors: yes              # Errors do not stop execution
+
+  - name: Wait for HTTP
+    delegate_to: localhost
+    ansible.builtin.wait_for:
+      host: "{{ ansible_host }}"
+      port: 80
+      state: started                # started == Port is open
+      delay:   0                    # Default: 0. Seconds before first check
+      sleep:   10                   # Default: 1. Seconds between checks
+      timeout: 1800                 # Default: 300. Stop checking after <seconds>
+    ignore_errors: yes              # Errors do not stop execution
+
+  - name: Wait for HTTPS
+    delegate_to: localhost
+    ansible.builtin.wait_for:
+      host: "{{ ansible_host }}"
+      port: 443
+      state: started                # started == Port is open
+      delay:   0                    # Default: 0. Seconds before first check
+      sleep:   10                   # Default: 1. Seconds between checks
+      timeout: 1800                 # Default: 300. Stop checking after <seconds>
     ignore_errors: yes              # Errors do not stop execution
 
 
-  - name: Wait for ISE Admin GUI | {{ inventory_hostname }}
+  - name: Wait for ISE Admin GUI
     delegate_to: localhost
     ansible.builtin.uri:
       url: https://{{ ansible_host }}/admin/login.jsp
