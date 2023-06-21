@@ -1,29 +1,6 @@
 ---
 
-
-  # - name: Wait for SSH + HTTP + HTTPS
-  #   delegate_to: localhost
-  #   loop:
-  #     - 22
-  #     - 80
-  #     - 443
-  #   loop_control:
-  #     loop_var: port
-  #   vars:
-  #     wait_delay: 0
-  #     wait_sleep: 10
-  #     wait_timeout: 1800            # 30 minutes
-  #   ansible.builtin.wait_for:
-  #     host: "{{ ansible_host }}"
-  #     port: "{{ port }}"
-  #     state: started                # started == Port is open
-  #     delay:   "{{ wait_delay }}"   # Default: 0. Seconds before first check
-  #     sleep:   "{{ wait_sleep }}"   # Default: 1. Seconds between checks
-  #     timeout: "{{ wait_timeout }}" # Default: 300. Stop checking after <seconds>
-  #   ignore_errors: yes              # Errors do not stop execution
-
-
-  - name: Wait for SSH
+  - name: Wait for ISE SSH
     delegate_to: localhost
     ansible.builtin.wait_for:
       host: "{{ ansible_host }}"
@@ -34,7 +11,7 @@
       timeout: 1800                 # Default: 300. Stop checking after <seconds>
     ignore_errors: yes              # Errors do not stop execution
 
-  - name: Wait for HTTP
+  - name: Wait for ISE HTTP
     delegate_to: localhost
     ansible.builtin.wait_for:
       host: "{{ ansible_host }}"
@@ -42,10 +19,10 @@
       state: started                # started == Port is open
       delay:   0                    # Default: 0. Seconds before first check
       sleep:   10                   # Default: 1. Seconds between checks
-      timeout: 1800                 # Default: 300. Stop checking after <seconds>
+      timeout: 3600                 # Default: 300. Stop checking after <seconds>
     ignore_errors: yes              # Errors do not stop execution
 
-  - name: Wait for HTTPS
+  - name: Wait for ISE HTTPS
     delegate_to: localhost
     ansible.builtin.wait_for:
       host: "{{ ansible_host }}"
@@ -53,7 +30,7 @@
       state: started                # started == Port is open
       delay:   0                    # Default: 0. Seconds before first check
       sleep:   10                   # Default: 1. Seconds between checks
-      timeout: 1800                 # Default: 300. Stop checking after <seconds>
+      timeout: 600                  # Default: 300. Stop checking after <seconds>
     ignore_errors: yes              # Errors do not stop execution
 
 
