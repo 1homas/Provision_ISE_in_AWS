@@ -9,7 +9,7 @@
       url: "https://{{ ansible_host }}/admin/API/apiService/update"
       method: POST
       url_username: "{{ ise_username }}"
-      url_password: "{{ ise_password }}"
+      url_password: "{{ ise_init_password }}"
       force_basic_auth: yes
       body: '{ "papIsEnabled":true, "psnsIsEnabled":true }'
       status_code: 200,500
@@ -40,7 +40,7 @@
       url: "https://{{ ansible_host }}/admin/API/NetworkAccessConfig/ERS"
       method: GET
       url_username: "{{ ise_username }}"
-      url_password: "{{ ise_password }}"
+      url_password: "{{ ise_init_password }}"
       force_basic_auth: yes
       headers:
         Accept: application/xml
@@ -62,7 +62,7 @@
       url: "https://{{ ansible_host }}/admin/API/NetworkAccessConfig/ERS"
       method: PUT
       url_username: "{{ ise_username }}"
-      url_password: "{{ ise_password }}"
+      url_password: "{{ ise_init_password }}"
       force_basic_auth: yes
       headers:
         Accept: application/xml
