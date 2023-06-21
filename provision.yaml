@@ -43,7 +43,7 @@
 
 
 - name: Initialize ISE Nodes
-  hosts: ISE  # all instances with product name "ISE"
+  hosts: ise_in_aws  # all instances with project_name "ise_in_aws"
   gather_facts: no
   vars_files:
     - vars/main.yaml
