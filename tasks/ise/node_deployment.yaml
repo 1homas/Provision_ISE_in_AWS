@@ -1,20 +1,9 @@
 ---
+- name: ISE Node Deployment Info
+  delegate_to: localhost
+  cisco.ise.node_deployment_info:
+    ise_hostname: "{{ ansible_host }}"
+    hostname: "{{ inventory_hostname }}"
+  register: node_info
 
-
-  - name: ISE Node Deployment Info
-    delegate_to: localhost
-    cisco.ise.node_deployment_info:
-      ise_hostname: "{{ ansible_host }}"
-      ise_username: "{{ ise_username }}"
-      ise_password: "{{ ise_password }}"
-      ise_verify:   "{{ ise_verify }}"
-      ise_debug:    "{{ ise_debug }}"
-      # filter: []
-      # filterType: string
-      hostname: "{{ inventory_hostname }}"
-    register: node_info
-
-  - ansible.builtin.debug: var=node_info
-
-
-...
+- ansible.builtin.debug: var=node_info
