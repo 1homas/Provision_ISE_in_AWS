@@ -9,6 +9,7 @@
     # - vars/ise_deployment_small.yaml
     # - vars/ise_deployment_medium.yaml
     # - vars/ise_deployment_large.yaml
+
   tasks:
 
   - name: Validate AWS Environment Vars
@@ -42,9 +43,11 @@
 
 
 - name: Initialize ISE Nodes
-  hosts: ise
+  hosts: ISE  # all instances with product name "ISE"
   gather_facts: no
-  vars_files: vars/main.yaml
+  vars_files:
+    - vars/main.yaml
+    - vars/ise_deployment_standalone.yaml
   vars:
     ansible_connection: ansible.netcommon.network_cli
     ansible_network_os: cisco.ios.ios
@@ -56,14 +59,21 @@
   #   ansible.builtin.pause:
 
   - name: DNS Registration for Node(s)
+    when: domain_name is defined
     ansible.builtin.include_tasks: tasks/aws/dns_registration.yaml
+
+  - name: ISE Username & Password
+    ansible.builtin.debug: 
+      msg:
+      - "ise_username : {{ ise_username }}"
+      - "ise_password : {{ ise_password }}"
 
   - name: Show SSH Commands for Instance
     ansible.builtin.debug:
       msg:
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ inventory_hostname }}.{{ domain_name }}"
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname].public_ip_address }}"
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise.defaults.ssh.username }}@{{ hostvars[inventory_hostname].private_ip_address }}"
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ inventory_hostname }}"
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ hostvars[inventory_hostname].public_ip_address }}"
+      - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ hostvars[inventory_hostname].private_ip_address }}"
 
   - name: Wait for ISE Application Server
     ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml

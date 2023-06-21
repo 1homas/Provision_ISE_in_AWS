@@ -9,6 +9,7 @@
   #
   - name: Add public DNS entry for the VM
     delegate_to: localhost
+    when: domain_name is defined
     community.aws.route53:
       state: present
       zone: "{{ domain_name }}"
@@ -21,6 +22,7 @@
       # wait: no
 
   # - name: Add private DNS entry for the VM
+  #   when: domain_name is defined
   #   community.aws.route53:
   #     state: present
   #     zone: "{{ domain_name }}"
