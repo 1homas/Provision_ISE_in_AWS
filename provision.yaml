@@ -1,5 +1,4 @@
 ---
-
 - name: Provision AWS VPC
   hosts: localhost
   gather_facts: yes
@@ -11,39 +10,43 @@
     # - vars/ise_deployment_large.yaml
 
   tasks:
+    - name: Validate AWS Environment Vars
+      ansible.builtin.include_tasks: tasks/aws/environment_valid.yaml
 
-  - name: Validate AWS Environment Vars
-    ansible.builtin.include_tasks: tasks/aws/environment_valid.yaml
+    - name: Validate ISE Environment Vars
+      ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
 
-  - name: Validate ISE Environment Vars
-    ansible.builtin.include_tasks: tasks/ise/environment_valid.yaml
+    - name: Provision SSH Keypair
+      ansible.builtin.include_tasks: tasks/aws/ssh_keypair.yaml
 
-  - name: Provision SSH Keypair
-    ansible.builtin.include_tasks: tasks/aws/ssh_keypair.yaml
+    - name: Provision AWS VPC
+      ansible.builtin.include_tasks: tasks/aws/vpc.yaml
 
-  - name: Provision AWS VPC
-    ansible.builtin.include_tasks: tasks/aws/vpc.yaml
+    - name: Provision AWS Security Groups
+      ansible.builtin.include_tasks: tasks/aws/security_groups.yaml
 
-  - name: Provision AWS Security Groups
-    ansible.builtin.include_tasks: tasks/aws/security_groups.yaml
+    - name: Provision ISE
+      ansible.builtin.include_tasks: tasks/aws/ise.yaml
 
-  - name: Provision ISE
-    ansible.builtin.include_tasks: tasks/aws/ise.yaml
+    - name: Summary of ISE Instances
+      delegate_to: localhost
+      vars:
+        head:
+          [
+            "instance_id",
+            "instance_type",
+            "private_ip_address",
+            "public_ip_address",
+          ]
+        rows: "{{ ise_instances.results | community.general.json_query('[].instances[]') }}"
+        temp: "{{ lookup('template', './templates/list_of_dicts.j2') }}"
+      ansible.builtin.shell: "echo '{{ temp }}' > /dev/tty"
 
-  - name: Summary of ISE Instances
-    delegate_to: localhost
-    vars:
-      head: ['instance_id','instance_type','private_ip_address','public_ip_address']
-      rows: "{{ ise_instances.results | community.general.json_query('[].instances[]') }}"
-      temp: "{{ lookup('template', './templates/list_of_dicts.j2') }}"
-    ansible.builtin.shell: "echo '{{ temp }}' > /dev/tty"
-
-  - name: Refresh AWS Inventory to get the new Instance(s)
-    ansible.builtin.meta: refresh_inventory
-
+    - name: Refresh AWS Inventory to get the new Instance(s)
+      ansible.builtin.meta: refresh_inventory
 
 - name: Initialize ISE Nodes
-  hosts: ise_in_aws  # all instances with project_name "ise_in_aws"
+  hosts: ise_in_aws # all instances with project_name "ise_in_aws"
   gather_facts: no
   vars_files:
     - vars/main.yaml
@@ -54,42 +57,38 @@
     ansible_ssh_user: iseadmin
     ansible_ssh_private_key_file: "{{ ssh_keypair_private_key }}"
   tasks:
+    # - name: Press enter to continue
+    #   ansible.builtin.pause:
 
-  # - name: Press enter to continue
-  #   ansible.builtin.pause:
+    - name: DNS Registration for Node(s)
+      when: domain_name is defined
+      ansible.builtin.include_tasks: tasks/aws/dns_registration.yaml
 
-  - name: DNS Registration for Node(s)
-    when: domain_name is defined
-    ansible.builtin.include_tasks: tasks/aws/dns_registration.yaml
+    - name: ISE Username & Password
+      ansible.builtin.debug:
+        msg:
+          - "ise_username : {{ ise_username }}"
+          - "ise_password : {{ ise_password }}"
 
-  - name: ISE Username & Password
-    ansible.builtin.debug: 
-      msg:
-      - "ise_username : {{ ise_username }}"
-      - "ise_password : {{ ise_password }}"
+    - name: Show SSH Commands for Instance
+      ansible.builtin.debug:
+        msg:
+          - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ inventory_hostname }}"
+          - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ hostvars[inventory_hostname].public_ip_address }}"
+          - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ hostvars[inventory_hostname].private_ip_address }}"
 
-  - name: Show SSH Commands for Instance
-    ansible.builtin.debug:
-      msg:
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ inventory_hostname }}"
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ hostvars[inventory_hostname].public_ip_address }}"
-      - "ssh -i {{ ssh_keypair_private_key }} {{ ise_username }}@{{ hostvars[inventory_hostname].private_ip_address }}"
+    - name: Wait for ISE Application Server
+      ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
 
-  - name: Wait for ISE Application Server
-    ansible.builtin.include_tasks: tasks/ise/wait_for_app_server.yaml
+    - name: Enable ISE APIs
+      ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
 
-  - name: Enable ISE APIs
-    ansible.builtin.include_tasks: tasks/ise/apis_enabled.yaml
+    - name: Get ISE Facts
+      ansible.builtin.include_tasks: tasks/ise/facts.yaml
 
-  - name: Get ISE Facts
-    ansible.builtin.include_tasks: tasks/ise/facts.yaml
+    - name: ISE Facts
+      ansible.builtin.debug: var=ise_facts
 
-  - name: ISE Facts
-    ansible.builtin.debug: var=ise_facts
-
-  - name: Assert Standalone ISE Nodes
-    ansible.builtin.assert:
-      that: "'Standalone' in ise_facts.roles"
-
-
-...
+    - name: Assert Standalone ISE Nodes
+      ansible.builtin.assert:
+        that: "'Standalone' in ise_facts.roles"
