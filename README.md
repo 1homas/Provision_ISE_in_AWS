@@ -10,38 +10,48 @@
 1. Create your Python environment and install Ansible:  
 
     ```sh
-    pip install --upgrade pip
-    pipenv install --python 3.9
+    python -m ensurepip --upgrade
+    pip3   install --upgrade pipenv     # use a virtual development environment
+    pipenv install --python 3.11        # use Python 3.9 or later
     pipenv install ansible 
     pipenv install boto boto3 botocore 
     pipenv install ciscoisesdk 
     pipenv install jmespath
     pipenv shell
-    ansible-galaxy collection install cisco.ise --force
     ```
 
-    If you have any problems installing Python or Ansible, see [Installing Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
+    > ⚠ Installing Ansible using Linux packages (`sudo apt install ansible`) may info in a much older version of Ansible being installed.
+    > 💡 Installing Ansible with Python packages will get you the latest.
+    > 💡 If you have any problems installing Python or Ansible, see [Installing Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 
 1. Export your various keys, tokens, and credentials for your shell environment.
 
-    ```bash
+    ```sh
     # AWS IAM API Keys
     export AWS_REGION='us-west-1'
     export AWS_ACCESS_KEY='AKIAIOSF/EXAMPLE+KEY'
     export AWS_SECRET_KEY='wJalrXUtnFEMI/K7MDENG/bPxRfi/EXAMPLE+KEY'
     ```
 
-    ```bash
-    # ISE REST API Credentials
-    export ISE_USERNAME='admin'
-    export ISE_PASSWORD='ISEisC00L'
-    export ISE_VERIFY=false
-    export ISE_DEBUG=false
+    ```sh
+    export ISE_HOSTNAME=ise.securitydemo.net
+    export ISE_USERNAME=admin
+    export ISE_PASSWORD=ISEisC00L
+    export ISE_VERIFY=False # optional, defaults to True
+    # export ISE_VERSION=3.1_Patch_1 # optional, defaults to 3.1_Patch_1
+    export ISE_WAIT_ON_RATE_LIMIT=True # optional, defaults to True
+    export ISE_USES_API_GATEWAY=True # optional, defaults to True
+    export ISE_DEBUG=False # optional, defaults to False
+    export ISE_RADIUS_SECRET=ISEisC00L
+    export ISE_TACACS_SECRET=ISEisC00L
+    export DCLOUD_SESSION_ID=1234567
     ```
 
-    Alternatively, keep your environment variables in `*.sh` files in a `.secrets` or similar folder in your home directory. Use `source {filename}` to load the environment variables from the files:
+    > 💡 The cisco.ise Ansible modules will automatically use the `ISE_USERNAME`, `ISE_PASSWORD` and `ISE_VERIFY` variables so you do not need to reference them in your tasks!
 
-    ```bash
+    or you may edit and `source` these variables from a file in your `~/.secrets` directory :
+
+    ```sh
     source ~/.secrets/aws.sh
     source ~/.secrets/ise.sh
     ```
@@ -51,7 +61,7 @@
 1. Review the settings in `vars/main.yaml` and change them to match your desired cloud environment. :
     - `project_name`
     - `domain_name`
-    - `aws.region` if your AWS region is not `us-west-1`
+    - `aws_region` if your AWS region is not `us-west-1`
     - AWS AMI identifiers 
     - your preferred network CIDR ranges in AWS
     - your instance types sizes for your ISE node(s)
