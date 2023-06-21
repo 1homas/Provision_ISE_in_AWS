@@ -1,7 +1,7 @@
 ---
 
 - name: Wait for ISE
-  hosts: ise
+  hosts: ise_in_aws  # all instances with project name "ise_in_aws"
   gather_facts: no
   vars_files:
     - vars/main.yaml
