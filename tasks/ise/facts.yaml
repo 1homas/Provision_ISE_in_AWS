@@ -23,10 +23,6 @@
   - name: Get Node Info
     cisco.ise.node_info:
       ise_hostname: "{{ ansible_host }}"
-      ise_username: "{{ ise_username }}"
-      ise_password: "{{ ise_password }}"
-      ise_verify:   "{{ ise_verify   }}"
-      ise_debug:    "{{ ise_debug    }}"
       name: "{{ inventory_hostname }}"
     register: node_info
   # - ansible.builtin.debug: var=node_info
@@ -62,10 +58,6 @@
   - name: Get Node Deployment Info
     cisco.ise.node_deployment_info:
       ise_hostname: "{{ ansible_host }}"
-      ise_username: "{{ ise_username }}"
-      ise_password: "{{ ise_password }}"
-      ise_verify:   "{{ ise_verify   }}"
-      ise_debug:    "{{ ise_debug    }}"
       hostname: "{{ inventory_hostname }}"
     register: node_deployment_info
   # - ansible.builtin.debug: var=node_deployment_info
@@ -99,10 +91,6 @@
   - name: Get Patch Info
     cisco.ise.patch_info:
       ise_hostname: "{{ ansible_host }}"
-      ise_username: "{{ ise_username }}"
-      ise_password: "{{ ise_password }}"
-      ise_verify:   "{{ ise_verify   }}"
-      ise_debug:    "{{ ise_debug    }}"
     register: patch_info
   # - ansible.builtin.debug: var=patch_info
   #
@@ -125,10 +113,6 @@
   - name: Get Hotpatch Info
     cisco.ise.hotpatch_info:
       ise_hostname: "{{ ansible_host }}"
-      ise_username: "{{ ise_username }}"
-      ise_password: "{{ ise_password }}"
-      ise_verify:   "{{ ise_verify   }}"
-      ise_debug:    "{{ ise_debug    }}"
     register: hotpatch_info
   # - ansible.builtin.debug: var=hotpatch_info
   #
