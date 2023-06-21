@@ -11,13 +11,13 @@
 #   export AWS_ACCESS_KEY='AKIAIOSF/EXAMPLE+KEY'
 #   export AWS_SECRET_KEY='wJalrXUtnFEMI/K7MDENG/bPxRfi/EXAMPLE+KEY'
 # Also uses
-#   aws.region
-#   aws.vpc.name
+#   aws_region
+#   aws_vpc_name
 #------------------------------------------------------------------------------
 
   # - ansible.builtin.debug: var=inventory_hostname
   # - ansible.builtin.debug: var=ssh_keypair_name
-  # - ansible.builtin.debug: var=aws.region
+  # - ansible.builtin.debug: var=aws_region
   # - ansible.builtin.debug: var=dns_server
   # - ansible.builtin.debug: var=domain_name
   # - ansible.builtin.debug: var=ntp_server
@@ -29,9 +29,9 @@
   - name: Create VPC
     amazon.aws.ec2_vpc_net:
       state: present
-      name: "{{ aws.vpc.name }}"
-      region: "{{ aws.region }}"
-      cidr_block:  "{{ aws.vpc.cidr }}"
+      name: "{{ aws_vpc_name }}"
+      region: "{{ aws_region }}"
+      cidr_block:  "{{ aws_vpc_cidr }}"
       tags:
         Name: "vpc_{{ project_name }}"
         project: "{{ project_name }}"
@@ -58,8 +58,8 @@
     amazon.aws.ec2_vpc_subnet:
       state: present
       vpc_id: "{{ vpc.vpc.id }}"
-      cidr: "{{ aws.vpc.public_subnet_cidr }}"
-      region: "{{ aws.region }}"
+      cidr: "{{ aws_public_subnet_cidr }}"
+      region: "{{ aws_region }}"
       map_public: yes       # assigned public IP address by default
       tags:
         Name: Public_Subnet
@@ -74,8 +74,8 @@
     amazon.aws.ec2_vpc_subnet:
       state: present
       vpc_id: "{{ vpc.vpc.id }}"
-      cidr: "{{ aws.vpc.private_subnet_cidr }}"
-      region: "{{ aws.region }}"
+      cidr: "{{ aws_private_subnet_cidr }}"
+      region: "{{ aws_region }}"
       tags:
         Name: Private_Subnet
         project: "{{ project_name }}"
