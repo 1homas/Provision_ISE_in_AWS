@@ -3,102 +3,142 @@
 # AWS Security Groups
 #
 
+- name: SG_Public Security Group
+  amazon.aws.ec2_group:
+    vpc_id: "{{ vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    name: SG_Public
+    description: Public Access Security Group
+    rules:
+      - proto: icmp
+        from_port: -1
+        to_port: -1
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 0
+        to_port: 65535
+        cidr_ip: 0.0.0.0/0
+        rule_desc: Allow everything TCP
+      - proto: udp
+        from_port: 0
+        to_port: 65535
+        cidr_ip: 0.0.0.0/0
+        rule_desc: Allow everything UDP
+    tags:
+      Name: SG_Public
+      project: "{{ project_name }}"
+      started: "{{ '%Y-%m-%dT%H:%M:%S-%Z' | strftime }}"
+  register: sg_public
 
-  - name: SG_Public_Access Security Group
-    amazon.aws.ec2_group:
-      vpc_id: "{{ vpc.vpc.id }}"
-      region: "{{ aws.region }}"
-      name: SG_Public_Access
-      description: Public Access Security Group
-      rules:
-        - proto: icmp
-          from_port: -1
-          to_port:  -1
-          cidr_ip: 0.0.0.0/0
-        - proto: tcp
-          from_port: 0
-          to_port: 65535
-          cidr_ip: 0.0.0.0/0
-          rule_desc: Allow everything TCP
-        - proto: udp
-          from_port: 0
-          to_port: 65535
-          cidr_ip: 0.0.0.0/0
-          rule_desc: Allow everything UDP
-      tags:
-        Name: SG_Public_Access
-        project: "{{ project_name }}"
-        start_date: "{{ timestamp.date }}"
-    register: result
+# - ansible.builtin.debug: var=sg_public
 
-  # - ansible.builtin.debug: var=result
+- name: Create SG-ISE Security Group
+  amazon.aws.ec2_group:
+    name: SG-ISE
+    description: SG-ISE
+    # vpc_id: "{{ vpcs.vpcs[0].id }}"
+    vpc_id: "{{ vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    rules:
+    - proto: -1
+      from_port: 0
+      to_port: 0
+      cidr_ip: 172.31.0.0/16
+      rule_desc: Allow all traffic within VPC
+    - proto: tcp
+      from_port: 22
+      to_port: 22
+      cidr_ip: 0.0.0.0/0
+      rule_desc: Allow SSH from anywhere
+    # 💡 Uncomment *only* if you want ISE directly accessible from Internet
+    - proto: tcp
+      from_port: 443
+      to_port: 443
+      cidr_ip: 0.0.0.0/0
+      rule_desc: Allow HTTPS from anywhere
+    - proto: -1
+      from_port: 0
+      to_port: 0
+      cidr_ip: 192.168.0.0/16
+      rule_desc: Allow all traffic from on-premises
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0    # any
+        rule_desc: Allow All
+    tags:
+      Name: SG-ISE
+      project: "{{ project_name }}"
+      started: "{{ '%Y-%m-%dT%H:%M:%S-%Z' | strftime }}"
+  register: sg_ise
+  tags:
+  - sg
+  - security_group
 
+  
+# - name: SG_SSH_Only Security Group
+#   amazon.aws.ec2_group:
+#     region: "{{ aws_region }}"
+#     state: present
+#     name: SSH_Only
+#     description: SSH_Only
+#     # tags: { protocol: ssh }
+#     rules:
+#       - rule_desc: SSH_in
+#         proto: tcp
+#         to_port: 22
+#         from_port: 22
+#         cidr_ip: 0.0.0.0/0    # any
+#     tags:
+#       Name: SG_SSH_Only
+#       project: "{{ project_name }}"
+#       started:  "{{ '%Y-%m-%dT%H:%M:%S-%Z' | strftime }}"
 
-  # - name: SG_SSH_Only Security Group
-  #   amazon.aws.ec2_group:
-  #     region: "{{ aws.region }}"
-  #     state: present
-  #     name: SSH_Only
-  #     description: SSH_Only
-  #     # tags: { protocol: ssh }
-  #     rules:
-  #       - rule_desc: SSH_in
-  #         proto: tcp
-  #         to_port: 22
-  #         from_port: 22
-  #         cidr_ip: 0.0.0.0/0    # any
-  #     tags:
-  #       Name: SG_SSH_Only
-  #       project: "{{ project_name }}"
-  #       start_date: "{{ timestamp.date }}"
-  #   register: result
+#   register: result
 
-  # - ansible.builtin.debug: var=result
+# - ansible.builtin.debug: var=result
 
+# - name: SG_ISE Security Group
+#   amazon.aws.ec2_group:
+#     region: "{{ aws_region }}"
+#     state: present
+#     name: SG_ISE
+#     description: SG_ISE
+#     rules:
+#       - proto: tcp
+#         from_port: 80
+#         to_port: 80
+#         cidr_ip: 0.0.0.0/0    # any
+#         rule_desc: HTTP
+#       - proto: tcp
+#         from_port: 443
+#         to_port: 443
+#         cidr_ip: 0.0.0.0/0    # any
+#         rule_desc: HTTPS
+#       - proto: udp
+#         from_port: 1812
+#         to_port: 1813
+#         cidr_ip: 0.0.0.0/0    # any
+#         rule_desc: RADIUS Auth & Acct
+#       - proto: udp
+#         from_port: 1645
+#         to_port: 1646
+#         cidr_ip: 0.0.0.0/0    # any
+#         rule_desc: RADIUS Auth & Acct (Old!)
+#       - proto: tcp
+#         from_port: 9060
+#         to_port: 9060
+#         cidr_ip: 0.0.0.0/0    # any
+#         rule_desc: ERS API
+#     # rules_egress:
+#     #   - proto: any
+#     #     cidr_ip: 0.0.0.0/0    # any
+#     #     rule_desc: Any
+#     tags:
+#       Name: SG_ISE
+#       project: "{{ project_name }}"
+#       started:  "{{ '%Y-%m-%dT%H:%M:%S-%Z' | strftime }}"
 
-  # - name: SG_ISE Security Group
-  #   amazon.aws.ec2_group:
-  #     region: "{{ aws.region }}"
-  #     state: present
-  #     name: SG_ISE
-  #     description: SG_ISE
-  #     rules:
-  #       - proto: tcp
-  #         from_port: 80
-  #         to_port: 80
-  #         cidr_ip: 0.0.0.0/0    # any
-  #         rule_desc: HTTP
-  #       - proto: tcp
-  #         from_port: 443
-  #         to_port: 443
-  #         cidr_ip: 0.0.0.0/0    # any
-  #         rule_desc: HTTPS
-  #       - proto: udp
-  #         from_port: 1812
-  #         to_port: 1813
-  #         cidr_ip: 0.0.0.0/0    # any
-  #         rule_desc: RADIUS Auth & Acct
-  #       - proto: udp
-  #         from_port: 1645
-  #         to_port: 1646
-  #         cidr_ip: 0.0.0.0/0    # any
-  #         rule_desc: RADIUS Auth & Acct (Old!)
-  #       - proto: tcp
-  #         from_port: 9060
-  #         to_port: 9060
-  #         cidr_ip: 0.0.0.0/0    # any
-  #         rule_desc: ERS API
-  #     # rules_egress:
-  #     #   - proto: any
-  #     #     cidr_ip: 0.0.0.0/0    # any
-  #     #     rule_desc: Any
-  #     tags:
-  #       Name: SG_ISE
-  #       project: "{{ project_name }}"
-  #       start_date: "{{ timestamp.date }}"
-  #   register: result
+#   register: result
 
-  # - ansible.builtin.debug: var=result
+# - ansible.builtin.debug: var=result
 
-
-...
