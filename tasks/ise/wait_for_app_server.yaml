@@ -12,7 +12,7 @@
     vars:
       wait_delay: 0
       wait_sleep: 60
-      wait_timeout: 2400            # 30 minutes
+      wait_timeout: 1500            # 25 minutes
     ansible.builtin.wait_for:
       host: "{{ ansible_host }}"
       port: "{{ port }}"
@@ -34,7 +34,7 @@
       return_content: no
     register: result
     until: result.status == 200
-    retries: 1000
+    retries: 500
     delay: 10
 
 
