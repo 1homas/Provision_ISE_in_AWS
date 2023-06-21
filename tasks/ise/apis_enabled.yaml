@@ -14,7 +14,7 @@
       body: '{ "papIsEnabled":true, "psnsIsEnabled":true }'
       status_code: 200,500
       body_format: json
-      validate_certs: "{{ ise_verify }}"
+      validate_certs: false
       return_content: true
     register: response
 
@@ -46,7 +46,7 @@
         Accept: application/xml
         Content-Type: application/xml
       status_code: 200
-      validate_certs: "{{ ise_verify }}"
+      validate_certs: false
       return_content: true
     register: response
 
@@ -70,7 +70,7 @@
       body: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ersConfig>
     <id>1</id><isCSRFCheck>false</isCSRFCheck><isPapEnabled>true</isPapEnabled><isPsnsEnabled>true</isPsnsEnabled></ersConfig>'
       status_code: 200
-      validate_certs: "{{ ise_verify }}"
+      validate_certs: false
       return_content: true
     register: response
 
