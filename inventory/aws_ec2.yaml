@@ -50,36 +50,33 @@ strict: False
 #   ubuntu: "'ubuntu' in tags.os"
 
 keyed_groups:
-- key: tags
-  prefix: tag
-  separator: '_'
-- key: tags.Name
-  # prefix: name_
-  separator: ''
-- key: tags.product   # or tags['product']
-  prefix: product
-  separator: '_'
-- key: tags.project   # or tags['project']
-  prefix: project
-  separator: '_'
-- key: tags.services
-  prefix: service
-  separator: '_'
-- key: tags.roles
-  prefix: role
-  separator: '_'
-- key: placement.availability_zone
-  prefix: az
-  separator: '_'
-- key: placement.group
-  # prefix: group
-  separator: ''
-- key: placement.region      # group per region e.g. region_us_east_2
-  prefix: region
-  separator: '_'
-- key: instance_type
-  # prefix: type
-  separator: ''
+  - key: instance_type
+    # prefix: instance_type
+    separator: ""
+  - key: tags.product # or tags['product']
+    prefix: ""
+    separator: ""
+  - key: tags.product # or tags['product']
+    prefix: product
+    separator: "_"
+  - key: tags.project # or tags['project']
+    prefix: ""
+    separator: ""
+  - key: placement.region # group per region e.g. aws_region_us_east_2
+    # prefix: region
+    separator: ""
+  - key: placement.availability_zone
+    # prefix: az
+    separator: ""
+  - key: placement.group
+    # prefix: group
+    separator: ""
+  - key: tags.roles
+    prefix: role
+    separator: "_"
+  - key: tags.services
+    prefix: service
+    separator: "_"
 
 # Controls the Ansible `inventory_hostname` value
 # Default is the public DNS name
