@@ -17,6 +17,7 @@
     pipenv install boto boto3 botocore 
     pipenv install ciscoisesdk 
     pipenv install jmespath
+    pipenv install paramiko             # ISE CLI
     pipenv shell
     ```
 
