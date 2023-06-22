@@ -1,29 +1,60 @@
 #------------------------------------------------------------------------------
 # Standalone ISE Node
 # See https://cs.co/ise-aws for available AWS Instance Types and hourly rates
+#
+# ISE AWS Instance Types:
+#
+# ISE AMIs:
+#   ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
+#   ami: ami-0768dd8e82836d887  # us-west-1 ISE 3.2.0.542 20221103
+#   ami: ami-011a6eb459f518887  # us-west-1 ISE 3.3.0.383
+#
+# Use these roles & services with the nodes to customize the instance tags.
+# They will not automatically be deployed with these but they may be used
+# with a separate playbook, role(s), or tasks to configure them.
+#
+#   roles:      # Default: ['Standalone']. Use [] (no roles) for dedicated PSN
+#   - Standalone
+#   - PrimaryAdmin
+#   - PrimaryMonitoring
+#   - SecondaryAdmin
+#   - SecondaryMonitoring
+#   - PrimaryDedicatedMonitoring
+#   - SecondaryDedicatedMonitoring
+#   services:   # Default: ['Session','Profiler']. Use [] for dedicated PAN/MNT (no services)
+#   - DeviceAdmin
+#   - Profiler
+#   - Session
+#   - pxGrid
+#   - pxGridCloud
+#   - PassiveIdentity
+#   - SXP
+#   - TC-NAC
+#
 #------------------------------------------------------------------------------
 
 ise_nodes:
-- name: ise
-  # ami: ami-0965fef2e601ad4d0  # us-west-1 ISE 3.1 Patch 1 20211209
-  ami: ami-0c59bbc144f97a440  # us-west-1 ISE 3.2.0.542 20221002
-  instance_type: t3.xlarge    # Evaluation/Demo only
-  volume_size: 300
-  private_ip: 172.31.2.11
-  # roles:       # use [] (no roles) for dedicated PSN
-  # - Standalone
-  # - PrimaryAdmin
-  # - PrimaryMonitoring
-  # - SecondaryAdmin
-  # - SecondaryMonitoring
-  # - PrimaryDedicatedMonitoring
-  # - SecondaryDedicatedMonitoring
-  # services:    # use [] (no services) for dedicated PAN/MNT
-  # - DeviceAdmin
-  # - Profiler
-  # - Session
-  # - pxGrid
-  # - pxGridCloud
-  # - PassiveIdentity
-  # - SXP
-  # - TC-NAC
+
+# - name: ise31-t3xl
+#   ami: ami-0965fef2e601ad4d0    # us-west-1 ISE 3.1 Patch 1 20211209
+#   instance_type: t3.xlarge      # ISE Eval/Demo size
+#   private_ip: 172.31.2.36
+#   timezone: America/Los_Angeles # see AWS Cloud Formation Template for more
+
+# - name: ise31-c54xl
+#   ami: ami-0965fef2e601ad4d0    # us-west-1 ISE 3.1 Patch 1 20211209
+#   instance_type: c5.4xlarge     # ISE Eval/Demo size
+#   private_ip: 172.31.2.37
+#   timezone: America/Los_Angeles # see AWS Cloud Formation Template for more
+
+- name: ise32-t3xl
+  ami: ami-0768dd8e82836d887    # us-west-1 ISE 3.2.0.542 20221103
+  instance_type: t3.xlarge      # ISE Eval/Demo size
+  private_ip: 172.31.2.32
+  timezone: America/Los_Angeles # see AWS Cloud Formation Template for more
+
+# - name: ise32-c54xl
+#   ami: ami-0768dd8e82836d887    # us-west-1 ISE 3.2.0.542 20221103
+#   instance_type: c5.4xlarge
+#   private_ip: 172.31.2.34
+#   timezone: America/Los_Angeles # see AWS Cloud Formation Template for more
