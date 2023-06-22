@@ -25,3 +25,10 @@ aws_public_access_cidr: 0.0.0.0/0
 ise_init_password: "{{ lookup('env','ISE_INIT_PASSWORD') | default('C1sco12345') }}" # init ISE VM userdata
 ise_username: "{{ lookup('env','ISE_USERNAME') | default('iseadmin') }}" # init ISE VM userdata
 ise_password: "{{ lookup('env','ISE_PASSWORD') | default('ISEisC00L') }}" # init ISE VM userdata
+
+# ⭐ ISE SSH username is `iseadmin` for ISE 3.2+ cloud instances!
+ansible_ssh_user: "{{ lookup('env','ISE_SSH_USERNAME') }}"
+# ⭐ Un/Comment the SSH password or private_key_file - whichever you use!
+# ansible_ssh_password: "{{ lookup('env','ISE_SSH_PASSWORD') }}"
+ansible_ssh_private_key_file: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}"
+# ssh_keypair_private_key: "{{ ssh_keypair_directory }}/{{ ssh_keypair_name }}"
